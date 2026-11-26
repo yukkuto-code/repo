@@ -1,1 +1,79 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>会員ログイン</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f8fafc;
+      display: flex; justify-content: center; align-items: center; min-height: 100vh; color: #1e293b; padding: 20px;
+    }
+    .card {
+      background: #fff; padding: 40px 32px; border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); border: 1px solid #e2e8f0; width: 100%; max-width: 400px;
+    }
+    .header { text-align: center; margin-bottom: 24px; }
+    .header h1 { font-size: 22px; font-weight: bold; }
+    .header p { font-size: 13px; color: #64748b; margin-top: 6px; }
+    .error-msg {
+      display: none; background: #fee2e2; color: #b91c1c; padding: 10px; border-radius: 6px;
+      font-size: 13px; margin-bottom: 16px; text-align: center;
+    }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: #334155; }
+    .form-group input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; }
+    .form-group input:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+    .btn-submit {
+      width: 100%; padding: 12px; background: #2563eb; color: #fff; border: none;
+      border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer;
+    }
+    .btn-submit:hover { background: #1d4ed8; }
+    .links { margin-top: 20px; text-align: center; font-size: 13px; color: #64748b; display: flex; flex-direction: column; gap: 8px; }
+    .links a { color: #2563eb; text-decoration: none; font-weight: 500; }
+    .links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
 
+  <div class="card">
+    <div class="header">
+      <h1>会員ログイン</h1>
+      <p>ご登録のメールアドレスとパスワードを入力してください</p>
+    </div>
+
+    <div id="error-box" class="error-msg"></div>
+
+    <form action="/user/login" method="POST">
+      <div class="form-group">
+        <label for="email">メールアドレス</label>
+        <input type="email" id="email" name="email" placeholder="user@example.com" required>
+      </div>
+      <div class="form-group">
+        <label for="password">パスワード</label>
+        <input type="password" id="password" name="password" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn-submit">ログイン</button>
+    </form>
+
+    <div class="links">
+      <div>アカウントをお持ちでない方は <a href="/register">新規会員登録</a></div>
+      <div><a href="/">← トップページへ戻る</a></div>
+    </div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const box = document.getElementById('error-box');
+    if (params.get('error') === 'invalid') {
+      box.textContent = 'メールアドレスまたはパスワードが正しくありません。';
+      box.style.display = 'block';
+    } else if (params.get('error') === 'unauthorized') {
+      box.textContent = 'マイページを見るにはログインが必要です。';
+      box.style.display = 'block';
+    }
+  </script>
+</body>
+</html>
