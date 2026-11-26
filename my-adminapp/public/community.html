@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>会員投稿・コミュニティ - My Service</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; line-height: 1.6; }
+
+    header { background-color: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 16px 0; margin-bottom: 36px; position: sticky; top: 0; z-index: 10; }
+    .nav-container { max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+    .logo { font-size: 20px; font-weight: 800; color: #0f172a; text-decoration: none; }
+    .nav-links { display: flex; align-items: center; gap: 20px; font-size: 14px; }
+    .nav-links a { color: #475569; text-decoration: none; font-weight: 500; }
+    .nav-links a:hover, .nav-links a.active { color: #2563eb; font-weight: 700; }
+    .btn-login { padding: 8px 16px; border: 1px solid #2563eb; color: #2563eb !important; border-radius: 6px; font-weight: 600 !important; }
+    .btn-register { padding: 8px 16px; background: #2563eb; color: #ffffff !important; border-radius: 6px; font-weight: 600 !important; }
+
+    .container { max-width: 780px; margin: 0 auto; padding: 0 20px 60px; }
+    .page-title { font-size: 26px; font-weight: bold; color: #0f172a; margin-bottom: 24px; }
+
+    /* 投稿フォームカード */
+    .post-form-card { background: #ffffff; padding: 24px; border-radius: 10px; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 32px; }
+    .post-form-card h2 { font-size: 17px; margin-bottom: 14px; color: #0f172a; }
+    .form-group { margin-bottom: 14px; }
+    .form-group input, .form-group textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; font-family: inherit;
+    }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
+    .form-group textarea { height: 100px; resize: vertical; }
+    .btn-submit { padding: 10px 24px; background: #2563eb; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; }
+    .btn-submit:hover { background: #1d4ed8; }
+
+    /* 未ログイン時の案内ボックス */
+    .guest-banner { background: #eff6ff; border: 1px solid #bfdbfe; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 32px; }
+    .guest-banner p { font-size: 14px; color: #1e40af; margin-bottom: 12px; font-weight: 500; }
+    .guest-actions { display: flex; justify-content: center; gap: 12px; }
+
+    /* 投稿一覧 */
+    .post-list { display: flex; flex-direction: column; gap: 18px; }
+    .post-card { background: #ffffff; border-radius: 8px; padding: 22px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; color: #64748b; }
+    .author-tag { font-weight: bold; color: #0f172a; background: #f1f5f9; padding: 3px 10px; border-radius: 999px; }
+    .post-title { font-size: 18px; font-weight: bold; color: #0f172a; margin-bottom: 8px; }
+    .post-content { font-size: 15px; color: #334155; white-space: pre-wrap; }
+    .btn-delete { padding: 4px 10px; background: #fee2e2; color: #b91c1c; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; }
+    .btn-delete:hover { background: #fecaca; }
+    .empty-msg { text-align: center; padding: 48px; background: #fff; border-radius: 8px; color: #64748b; border: 1px solid #e2e8f0; }
+
+    footer { padding: 32px 20px; text-align: center; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0; background: #fff; }
+    footer a { color: #64748b; text-decoration: none; margin: 0 10px; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="nav-container">
+      <a href="/" class="logo">My Service</a>
+      <nav class="nav-links" id="nav-links">
+        <a href="/">ホーム</a>
+        <a href="/news">お知らせ</a>
+        <a href="/community" class="active">会員投稿</a>
+        <a href="/contact">お問い合わせ</a>
+        <a href="/login" class="btn-login">ログイン</a>
+        <a href="/register" class="btn-register">新規会員登録</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <h1 class="page-title">会員投稿・コミュニティ</h1>
+
+    <!-- ログイン済み会員のみ表示される投稿フォーム -->
+    <div id="member-post-box" class="post-form-card" style="display: none;">
+      <h2 id="form-heading">新しい投稿を作成する</h2>
+      <form id="user-post-form">
+        <div class="form-group">
+          <input type="text" id="post-title" placeholder="タイトルを入力してください" required>
+        </div>
+        <div class="form-group">
+          <textarea id="post-content" placeholder="みんなに共有したい内容を入力してください..." required></textarea>
+        </div>
+        <button type="submit" class="btn-submit">投稿する</button>
+      </form>
+    </div>
+
+    <!-- 未ログイン時に表示される案内 -->
+    <div id="guest-box" class="guest-banner" style="display: none;">
+      <p>記事を投稿するには会員ログインが必要です（閲覧はどなたでも可能です）</p>
+      <div class="guest-actions">
+        <a href="/login" class="btn-login" style="background:#fff;">ログインする</a>
+        <a href="/register" class="btn-register">無料会員登録</a>
+      </div>
+    </div>
+
+    <!-- みんなの投稿一覧 -->
+    <div id="post-list" class="post-list">
+      <div class="empty-msg">読み込み中...</div>
+    </div>
+  </main>
+
+  <footer>
+    <div style="margin-bottom: 10px;">
+      <a href="/">ホーム</a>
+      <a href="/news">お知らせ</a>
+      <a href="/community">会員投稿</a>
+      <a href="/contact">お問い合わせ</a>
+      <a href="/admin">管理者ログイン</a>
+    </div>
+    <p>&copy; 2026 My Service. All rights reserved.</p>
+  </footer>
+
+  <script>
+    let currentUser = null;
+
+    async function init() {
+      // ログイン状態を確認
+      const meRes = await fetch('/api/me');
+      const meData = await meRes.json();
+      currentUser = meData.user;
+
+      if (currentUser) {
+        document.getElementById('nav-links').innerHTML = `
+          <a href="/">ホーム</a>
+          <a href="/news">お知らせ</a>
+          <a href="/community" class="active">会員投稿</a>
+          <a href="/contact">お問い合わせ</a>
+          <a href="/mypage" class="btn-register">マイページ（${escapeHtml(currentUser.name)}様）</a>
+        `;
+        document.getElementById('member-post-box').style.display = 'block';
+        document.getElementById('form-heading').textContent = `${currentUser.name} として新しい投稿を作成`;
+      } else {
+        document.getElementById('guest-box').style.display = 'block';
+      }
+
+      loadUserPosts();
+    }
+
+    async function loadUserPosts() {
+      const res = await fetch('/api/user-posts');
+      const posts = await res.json();
+      const listEl = document.getElementById('post-list');
+
+      if (!posts || posts.length === 0) {
+        listEl.innerHTML = '<div class="empty-msg">まだ投稿がありません。最初の投稿をしてみましょう！</div>';
+        return;
+      }
+
+      listEl.innerHTML = '';
+      posts.forEach(post => {
+        const dateStr = new Date(post.created_at).toLocaleString('ja-JP', {
+          year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+        });
+
+        // 自分の投稿なら削除ボタンを表示
+        const isOwner = currentUser && currentUser.id === post.user_id;
+        const deleteBtn = isOwner
+          ? `<button class="btn-delete" onclick="deletePost(${post.id})">削除</button>`
+          : '';
+
+        const div = document.createElement('div');
+        div.className = 'post-card';
+        div.innerHTML = `
+          <div class="post-header">
+            <span class="author-tag">👤 ${escapeHtml(post.author_name)}</span>
+            <div style="display:flex; align-items:center; gap:10px;">
+              <span>${dateStr}</span>
+              ${deleteBtn}
+            </div>
+          </div>
+          <h3 class="post-title">${escapeHtml(post.title)}</h3>
+          <div class="post-content">${escapeHtml(post.content)}</div>
+        `;
+        listEl.appendChild(div);
+      });
+    }
+
+    document.getElementById('user-post-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const titleInput = document.getElementById('post-title');
+      const contentInput = document.getElementById('post-content');
+
+      const res = await fetch('/api/user-posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: titleInput.value, content: contentInput.value })
+      });
+
+      if (res.ok) {
+        titleInput.value = '';
+        contentInput.value = '';
+        loadUserPosts();
+      } else {
+        alert('投稿に失敗しました。ログイン状態を確認してください。');
+      }
+    });
+
+    async function deletePost(id) {
+      if (!confirm('自分の投稿を削除しますか？')) return;
+      await fetch(`/api/user-posts/${id}`, { method: 'DELETE' });
+      loadUserPosts();
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    init();
+  </script>
+</body>
+</html>
