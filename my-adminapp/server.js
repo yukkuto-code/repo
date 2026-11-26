@@ -10,7 +10,6 @@ const ADMIN_USER = process.env.ADMIN_USER || 'admin';
 const ADMIN_PASS = process.env.ADMIN_PASS || 'password123';
 const SESSION_SECRET = process.env.SESSION_SECRET || 'railway-secret-key-change-me';
 
-// PostgreSQL接続設定
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.DATABASE_URL && !process.env.DATABASE_URL.includes('railway.internal')
@@ -18,7 +17,7 @@ const pool = new Pool({
     : false
 });
 
-// 初回起動時にテーブルを自動作成する関数
+// 初回起動時に「投稿テーブル」と「お問い合わせテーブル」を自動作成
 async function initDB() {
   try {
     await pool.query(`
@@ -30,7 +29,17 @@ async function initDB() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    console.log('PostgreSQL table initialized');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS inquiries (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        subject VARCHAR(255) NOT NULL,
+        message TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('PostgreSQL tables initialized');
   } catch (err) {
     console.error('Database initialization error:', err);
   }
@@ -47,13 +56,11 @@ app.use(session({
   cookie: { maxAge: 1000 * 60 * 60 * 24 }
 }));
 
-// 認証チェック（画面用）
 function requireAuth(req, res, next) {
   if (req.session && req.session.isAuthenticated) return next();
   res.redirect('/?error=unauthorized');
 }
 
-// 認証チェック（管理API用）
 function requireApiAuth(req, res, next) {
   if (req.session && req.session.isAuthenticated) return next();
   res.status(401).json({ error: '認証が必要です' });
@@ -63,22 +70,22 @@ function requireApiAuth(req, res, next) {
 // ▼ 画面ルート
 // ==========================================
 
-// 管理者ログイン画面
 app.get('/', (req, res) => {
-  if (req.session && req.session.isAuthenticated) {
-    return res.redirect('/dashboard');
-  }
+  if (req.session && req.session.isAuthenticated) return res.redirect('/dashboard');
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// 管理者ダッシュボード（ログイン必須）
 app.get('/dashboard', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
-// 【新規】誰でも見れる投稿公開画面
 app.get('/news', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'news.html'));
+});
+
+// 【新規】お問い合わせ画面
+app.get('/contact', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'contact.html'));
 });
 
 // ==========================================
@@ -99,10 +106,9 @@ app.post('/admin/logout', (req, res) => {
 });
 
 // ==========================================
-// ▼ データベース連携API
+// ▼ 投稿管理API
 // ==========================================
 
-// 1. 投稿一覧を取得（公開画面・管理画面の両方から利用可能）
 app.get('/api/posts', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM posts ORDER BY id DESC');
@@ -112,7 +118,6 @@ app.get('/api/posts', async (req, res) => {
   }
 });
 
-// 2. 新規投稿を追加（管理者のみ）
 app.post('/api/posts', requireApiAuth, async (req, res) => {
   const { title, category, content } = req.body;
   if (!title) return res.status(400).json({ error: 'タイトルは必須です' });
@@ -128,11 +133,53 @@ app.post('/api/posts', requireApiAuth, async (req, res) => {
   }
 });
 
-// 3. 投稿を削除（管理者のみ）
 app.delete('/api/posts/:id', requireApiAuth, async (req, res) => {
   const id = parseInt(req.params.id, 10);
   try {
     await pool.query('DELETE FROM posts WHERE id = $1', [id]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: '削除に失敗しました' });
+  }
+});
+
+// ==========================================
+// ▼ 【新規】お問い合わせAPI
+// ==========================================
+
+// 1. お問い合わせ送信（一般ユーザー誰でも送信可能）
+app.post('/api/inquiries', async (req, res) => {
+  const { name, email, subject, message } = req.body;
+  if (!name || !email || !message) {
+    return res.status(400).json({ error: '必須項目を入力してください' });
+  }
+
+  try {
+    const result = await pool.query(
+      'INSERT INTO inquiries (name, email, subject, message) VALUES ($1, $2, $3, $4) RETURNING *',
+      [name, email, subject || '件名なし', message]
+    );
+    res.status(201).json({ success: true, inquiry: result.rows });
+  } catch (err) {
+    res.status(500).json({ error: '送信に失敗しました' });
+  }
+});
+
+// 2. お問い合わせ一覧取得（管理者のみ閲覧可能）
+app.get('/api/inquiries', requireApiAuth, async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM inquiries ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: '取得に失敗しました' });
+  }
+});
+
+// 3. お問い合わせ削除（管理者のみ）
+app.delete('/api/inquiries/:id', requireApiAuth, async (req, res) => {
+  const id = parseInt(req.params.id, 10);
+  try {
+    await pool.query('DELETE FROM inquiries WHERE id = $1', [id]);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: '削除に失敗しました' });
