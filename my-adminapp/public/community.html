@@ -32,20 +32,47 @@
     .btn-submit { padding: 10px 24px; background: #2563eb; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; }
     .btn-submit:hover { background: #1d4ed8; }
 
-    /* 未ログイン時の案内ボックス */
+    /* 未ログイン時の案内 */
     .guest-banner { background: #eff6ff; border: 1px solid #bfdbfe; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 32px; }
     .guest-banner p { font-size: 14px; color: #1e40af; margin-bottom: 12px; font-weight: 500; }
     .guest-actions { display: flex; justify-content: center; gap: 12px; }
 
-    /* 投稿一覧 */
-    .post-list { display: flex; flex-direction: column; gap: 18px; }
-    .post-card { background: #ffffff; border-radius: 8px; padding: 22px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+    /* 投稿カード */
+    .post-list { display: flex; flex-direction: column; gap: 20px; }
+    .post-card { background: #ffffff; border-radius: 10px; padding: 22px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
     .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; color: #64748b; }
     .author-tag { font-weight: bold; color: #0f172a; background: #f1f5f9; padding: 3px 10px; border-radius: 999px; }
     .post-title { font-size: 18px; font-weight: bold; color: #0f172a; margin-bottom: 8px; }
-    .post-content { font-size: 15px; color: #334155; white-space: pre-wrap; }
+    .post-content { font-size: 15px; color: #334155; white-space: pre-wrap; margin-bottom: 16px; }
     .btn-delete { padding: 4px 10px; background: #fee2e2; color: #b91c1c; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; }
     .btn-delete:hover { background: #fecaca; }
+
+    /* いいね・リアクションバー */
+    .reaction-bar { display: flex; align-items: center; gap: 16px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+    .btn-like {
+      display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px;
+      border: 1px solid #cbd5e1; background: #fff; color: #475569; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.15s;
+    }
+    .btn-like:hover { background: #fff1f2; border-color: #fda4af; color: #e11d48; }
+    .btn-like.liked { background: #ffe4e6; border-color: #fb7185; color: #e11d48; }
+    .comment-count-label { font-size: 13px; color: #64748b; }
+
+    /* コメントセクション */
+    .comments-section { margin-top: 14px; background: #f8fafc; border-radius: 8px; padding: 14px; border: 1px solid #e2e8f0; }
+    .comment-item { padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
+    .comment-item:last-of-type { border-bottom: none; }
+    .comment-meta { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #64748b; margin-bottom: 4px; }
+    .comment-author { font-weight: bold; color: #334155; }
+    .comment-text { color: #1e293b; white-space: pre-wrap; }
+    .btn-del-comment { background: none; border: none; color: #ef4444; font-size: 11px; cursor: pointer; margin-left: 8px; }
+    .btn-del-comment:hover { text-decoration: underline; }
+
+    .comment-form { display: flex; gap: 8px; margin-top: 10px; }
+    .comment-form input { flex-grow: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; background: #fff; }
+    .comment-form input:focus { outline: none; border-color: #2563eb; }
+    .btn-comment-send { padding: 8px 16px; background: #0f172a; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+    .btn-comment-send:hover { background: #334155; }
+
     .empty-msg { text-align: center; padding: 48px; background: #fff; border-radius: 8px; color: #64748b; border: 1px solid #e2e8f0; }
 
     footer { padding: 32px 20px; text-align: center; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0; background: #fff; }
@@ -71,7 +98,6 @@
   <main class="container">
     <h1 class="page-title">会員投稿・コミュニティ</h1>
 
-    <!-- ログイン済み会員のみ表示される投稿フォーム -->
     <div id="member-post-box" class="post-form-card" style="display: none;">
       <h2 id="form-heading">新しい投稿を作成する</h2>
       <form id="user-post-form">
@@ -85,16 +111,14 @@
       </form>
     </div>
 
-    <!-- 未ログイン時に表示される案内 -->
     <div id="guest-box" class="guest-banner" style="display: none;">
-      <p>記事を投稿するには会員ログインが必要です（閲覧はどなたでも可能です）</p>
+      <p>投稿・いいね・コメントをするには会員ログインが必要です（閲覧はどなたでも可能です）</p>
       <div class="guest-actions">
         <a href="/login" class="btn-login" style="background:#fff;">ログインする</a>
         <a href="/register" class="btn-register">無料会員登録</a>
       </div>
     </div>
 
-    <!-- みんなの投稿一覧 -->
     <div id="post-list" class="post-list">
       <div class="empty-msg">読み込み中...</div>
     </div>
@@ -115,21 +139,19 @@
     let currentUser = null;
 
     async function init() {
-      // ログイン状態を確認
       const meRes = await fetch('/api/me');
       const meData = await meRes.json();
       currentUser = meData.user;
 
       if (currentUser) {
-        document.getElementById('nav-links').innerHTML = `
-          <a href="/">ホーム</a>
-          <a href="/news">お知らせ</a>
-          <a href="/community" class="active">会員投稿</a>
-          <a href="/contact">お問い合わせ</a>
-          <a href="/mypage" class="btn-register">マイページ（${escapeHtml(currentUser.name)}様）</a>
-        `;
+        document.getElementById('nav-links').innerHTML =
+          '<a href="/">ホーム</a>' +
+          '<a href="/news">お知らせ</a>' +
+          '<a href="/community" class="active">会員投稿</a>' +
+          '<a href="/contact">お問い合わせ</a>' +
+          '<a href="/mypage" class="btn-register">マイページ（' + escapeHtml(currentUser.name) + '様）</a>';
         document.getElementById('member-post-box').style.display = 'block';
-        document.getElementById('form-heading').textContent = `${currentUser.name} として新しい投稿を作成`;
+        document.getElementById('form-heading').textContent = currentUser.name + ' として新しい投稿を作成';
       } else {
         document.getElementById('guest-box').style.display = 'block';
       }
@@ -153,25 +175,68 @@
           year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
         });
 
-        // 自分の投稿なら削除ボタンを表示
         const isOwner = currentUser && currentUser.id === post.user_id;
         const deleteBtn = isOwner
-          ? `<button class="btn-delete" onclick="deletePost(${post.id})">削除</button>`
+          ? '<button class="btn-delete" onclick="deletePost(' + post.id + ')">削除</button>'
+          : '';
+
+        const likedClass = post.liked_by_me ? 'liked' : '';
+        const heartIcon = post.liked_by_me ? '♥' : '♡';
+
+        let commentsHtml = '';
+        if (post.comments && post.comments.length > 0) {
+          post.comments.forEach(c => {
+            const cDate = new Date(c.created_at).toLocaleString('ja-JP', {
+              month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
+            });
+            const isCommentOwner = currentUser && currentUser.id === c.user_id;
+            const delCommentBtn = isCommentOwner
+              ? '<button class="btn-del-comment" onclick="deleteComment(' + c.id + ')">削除</button>'
+              : '';
+
+            commentsHtml +=
+              '<div class="comment-item">' +
+                '<div class="comment-meta">' +
+                  '<span class="comment-author">↳ ' + escapeHtml(c.author_name) + '</span>' +
+                  '<div><span>' + cDate + '</span>' + delCommentBtn + '</div>' +
+                '</div>' +
+                '<div class="comment-text">' + escapeHtml(c.comment) + '</div>' +
+              '</div>';
+          });
+        } else {
+          commentsHtml = '<div style="font-size:12px; color:#94a3b8;">まだコメントはありません</div>';
+        }
+
+        const replyFormHtml = currentUser
+          ? '<form class="comment-form" onsubmit="submitComment(event, ' + post.id + ')">' +
+              '<input type="text" id="comment-input-' + post.id + '" placeholder="返信コメントを入力..." required>' +
+              '<button type="submit" class="btn-comment-send">返信</button>' +
+            '</form>'
           : '';
 
         const div = document.createElement('div');
         div.className = 'post-card';
-        div.innerHTML = `
-          <div class="post-header">
-            <span class="author-tag">👤 ${escapeHtml(post.author_name)}</span>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <span>${dateStr}</span>
-              ${deleteBtn}
-            </div>
-          </div>
-          <h3 class="post-title">${escapeHtml(post.title)}</h3>
-          <div class="post-content">${escapeHtml(post.content)}</div>
-        `;
+        div.innerHTML =
+          '<div class="post-header">' +
+            '<span class="author-tag">👤 ' + escapeHtml(post.author_name) + '</span>' +
+            '<div style="display:flex; align-items:center; gap:10px;">' +
+              '<span>' + dateStr + '</span>' +
+              deleteBtn +
+            '</div>' +
+          '</div>' +
+          '<h3 class="post-title">' + escapeHtml(post.title) + '</h3>' +
+          '<div class="post-content">' + escapeHtml(post.content) + '</div>' +
+          '<div class="reaction-bar">' +
+            '<button class="btn-like ' + likedClass + '" onclick="toggleLike(' + post.id + ')">' +
+              '<span>' + heartIcon + ' いいね</span>' +
+              '<span>' + post.like_count + '</span>' +
+            '</button>' +
+            '<span class="comment-count-label">💬 コメント (' + (post.comments ? post.comments.length : 0) + '件)</span>' +
+          '</div>' +
+          '<div class="comments-section">' +
+            commentsHtml +
+            replyFormHtml +
+          '</div>';
         listEl.appendChild(div);
       });
     }
@@ -180,33 +245,65 @@
       e.preventDefault();
       const titleInput = document.getElementById('post-title');
       const contentInput = document.getElementById('post-content');
-
       const res = await fetch('/api/user-posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: titleInput.value, content: contentInput.value })
       });
-
       if (res.ok) {
         titleInput.value = '';
         contentInput.value = '';
         loadUserPosts();
-      } else {
-        alert('投稿に失敗しました。ログイン状態を確認してください。');
       }
     });
 
+    async function toggleLike(postId) {
+      if (!currentUser) {
+        alert('「いいね」をするには会員ログインが必要です。');
+        window.location.href = '/login';
+        return;
+      }
+      await fetch('/api/user-posts/' + postId + '/like', { method: 'POST' });
+      loadUserPosts();
+    }
+
+    async function submitComment(e, postId) {
+      e.preventDefault();
+      const input = document.getElementById('comment-input-' + postId);
+      if (!input.value.trim()) return;
+
+      const res = await fetch('/api/user-posts/' + postId + '/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ comment: input.value })
+      });
+      if (res.ok) {
+        loadUserPosts();
+      }
+    }
+
     async function deletePost(id) {
       if (!confirm('自分の投稿を削除しますか？')) return;
-      await fetch(`/api/user-posts/${id}`, { method: 'DELETE' });
+      await fetch('/api/user-posts/' + id, { method: 'DELETE' });
+      loadUserPosts();
+    }
+
+    async function deleteComment(id) {
+      if (!confirm('このコメントを削除しますか？')) return;
+      await fetch('/api/comments/' + id, { method: 'DELETE' });
       loadUserPosts();
     }
 
     function escapeHtml(str) {
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
     }
 
     init();
   </script>
 </body>
 </html>
+
