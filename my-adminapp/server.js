@@ -18,12 +18,11 @@ const pool = new Pool({
     : false
 });
 
-// パスワード暗号化（ハッシュ化）用関数
 function hashPassword(password) {
   return crypto.createHash('sha256').update(password + SESSION_SECRET).digest('hex');
 }
 
-// 初回起動時に3つのテーブル（投稿・お問い合わせ・一般会員）を自動作成
+// 4つのテーブルを自動作成（運営投稿・お問い合わせ・会員・会員投稿）
 async function initDB() {
   try {
     await pool.query(`
@@ -54,6 +53,16 @@ async function initDB() {
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_posts (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER NOT NULL,
+        author_name VARCHAR(100) NOT NULL,
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
     console.log('PostgreSQL tables initialized');
   } catch (err) {
     console.error('Database initialization error:', err);
@@ -71,7 +80,7 @@ app.use(session({
   cookie: { maxAge: 1000 * 60 * 60 * 24 }
 }));
 
-// 管理者用認証チェック
+// 認証ミドルウェア
 function requireAdmin(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
   res.redirect('/admin?error=unauthorized');
@@ -80,53 +89,47 @@ function requireAdminApi(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
   res.status(401).json({ error: '管理者認証が必要です' });
 }
-
-// 一般会員用認証チェック
 function requireUser(req, res, next) {
   if (req.session && req.session.user) return next();
   res.redirect('/login?error=unauthorized');
 }
+function requireUserApi(req, res, next) {
+  if (req.session && req.session.user) return next();
+  res.status(401).json({ error: '会員ログインが必要です' });
+}
 
 // ==========================================
-// ▼ 公開画面ルート
+// ▼ 画面ルート
 // ==========================================
 
-// トップページ（公式ホームページ）
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'home.html'));
-});
-
-app.get('/news', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'news.html'));
-});
-
-app.get('/contact', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'contact.html'));
-});
-
-// ==========================================
-// ▼ 一般会員用ルート＆認証
-// ==========================================
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'home.html')));
+app.get('/news', (req, res) => res.sendFile(path.join(__dirname, 'public', 'news.html')));
+app.get('/contact', (req, res) => res.sendFile(path.join(__dirname, 'public', 'contact.html')));
+app.get('/community', (req, res) => res.sendFile(path.join(__dirname, 'public', 'community.html')));
 
 app.get('/login', (req, res) => {
   if (req.session && req.session.user) return res.redirect('/mypage');
   res.sendFile(path.join(__dirname, 'public', 'login.html'));
 });
-
 app.get('/register', (req, res) => {
   if (req.session && req.session.user) return res.redirect('/mypage');
   res.sendFile(path.join(__dirname, 'public', 'register.html'));
 });
+app.get('/mypage', requireUser, (req, res) => res.sendFile(path.join(__dirname, 'public', 'mypage.html')));
 
-app.get('/mypage', requireUser, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'mypage.html'));
+app.get('/admin', (req, res) => {
+  if (req.session && req.session.isAdmin) return res.redirect('/dashboard');
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
+app.get('/dashboard', requireAdmin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 
-// 新規会員登録処理
+// ==========================================
+// ▼ 認証処理（会員・管理者）
+// ==========================================
+
 app.post('/user/register', async (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) return res.redirect('/register?error=missing');
-
   try {
     const hashed = hashPassword(password);
     const result = await pool.query(
@@ -136,12 +139,10 @@ app.post('/user/register', async (req, res) => {
     req.session.user = result.rows[0];
     res.redirect('/mypage');
   } catch (err) {
-    // メールアドレス重複時
     res.redirect('/register?error=exists');
   }
 });
 
-// 一般会員ログイン処理
 app.post('/user/login', async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -160,28 +161,13 @@ app.post('/user/login', async (req, res) => {
   }
 });
 
-// 一般会員ログアウト
 app.post('/user/logout', (req, res) => {
   req.session.user = null;
   res.redirect('/');
 });
 
-// ログイン中の会員情報を返すAPI（マイページ・ヘッダー表示用）
 app.get('/api/me', (req, res) => {
   res.json({ user: req.session ? req.session.user || null : null });
-});
-
-// ==========================================
-// ▼ 管理者用ルート＆認証
-// ==========================================
-
-app.get('/admin', (req, res) => {
-  if (req.session && req.session.isAdmin) return res.redirect('/dashboard');
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/dashboard', requireAdmin, (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'dashboard.html'));
 });
 
 app.post('/admin/login', (req, res) => {
@@ -199,7 +185,58 @@ app.post('/admin/logout', (req, res) => {
 });
 
 // ==========================================
-// ▼ データ管理API（投稿・お問い合わせ・会員）
+// ▼ 【新規】一般会員の投稿API
+// ==========================================
+
+// 1. 会員投稿の一覧取得（閲覧は誰でも可能）
+app.get('/api/user-posts', async (req, res) => {
+  try {
+    const result = await pool.query('SELECT * FROM user_posts ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: '取得エラー' });
+  }
+});
+
+// 2. 会員による新規投稿（ログイン済み会員のみ）
+app.post('/api/user-posts', requireUserApi, async (req, res) => {
+  const { title, content } = req.body;
+  if (!title || !content) return res.status(400).json({ error: 'タイトルと本文は必須です' });
+
+  const user = req.session.user;
+  try {
+    const result = await pool.query(
+      'INSERT INTO user_posts (user_id, author_name, title, content) VALUES ($1, $2, $3, $4) RETURNING *',
+      [user.id, user.name, title, content]
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: '投稿に失敗しました' });
+  }
+});
+
+// 3. 会員投稿の削除（投稿者本人、または管理者のみ削除可能）
+app.delete('/api/user-posts/:id', async (req, res) => {
+  const postId = parseInt(req.params.id, 10);
+  const user = req.session ? req.session.user : null;
+  const isAdmin = req.session ? req.session.isAdmin : false;
+
+  if (!user && !isAdmin) return res.status(401).json({ error: '権限がありません' });
+
+  try {
+    if (isAdmin) {
+      await pool.query('DELETE FROM user_posts WHERE id = $1', [postId]);
+    } else {
+      await pool.query('DELETE FROM user_posts WHERE id = $1 AND user_id = $2', [postId, user.id]);
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: '削除エラー' });
+  }
+});
+
+// ==========================================
+// ▼ 運営投稿・お問い合わせ・会員管理API
 // ==========================================
 
 app.get('/api/posts', async (req, res) => {
@@ -266,7 +303,6 @@ app.delete('/api/inquiries/:id', requireAdminApi, async (req, res) => {
   }
 });
 
-// 【新規】登録会員一覧取得・削除（管理者用）
 app.get('/api/users', requireAdminApi, async (req, res) => {
   try {
     const result = await pool.query('SELECT id, name, email, created_at FROM users ORDER BY id DESC');
@@ -275,16 +311,14 @@ app.get('/api/users', requireAdminApi, async (req, res) => {
     res.status(500).json({ error: '取得エラー' });
   }
 });
-
 app.delete('/api/users/:id', requireAdminApi, async (req, res) => {
-  try {
-    await pool.query('DELETE FROM users WHERE id = $1', [parseInt(req.params.id, 10)]);
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: '削除エラー' });
-  }
+try {
+await pool.query('DELETE FROM users WHERE id = $1', [parseInt(req.params.id, 10)]);
+res.json({ success: true });
+} catch (err) {
+res.status(500).json({ error: '削除エラー' });
+}
 });
-
 app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on port ${PORT}`);
+console.log(Server is running on port ${PORT});
 });
