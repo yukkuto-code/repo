@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>お知らせ・投稿一覧</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      line-height: 1.6;
+    }
+    header {
+      background-color: #ffffff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 20px 0;
+      margin-bottom: 40px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 { font-size: 22px; color: #0f172a; }
+    .admin-link { font-size: 13px; color: #64748b; text-decoration: none; }
+    .admin-link:hover { text-decoration: underline; }
+
+    .post-list { display: flex; flex-direction: column; gap: 20px; }
+    .post-card {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e2e8f0;
+    }
+    .post-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: #64748b;
+    }
+    .badge {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: bold;
+      background-color: #dbeafe;
+      color: #1d4ed8;
+    }
+    .post-title {
+      font-size: 18px;
+      font-weight: bold;
+      color: #0f172a;
+      margin-bottom: 12px;
+    }
+    .post-content {
+      font-size: 15px;
+      color: #334155;
+      white-space: pre-wrap; /* 改行をそのまま反映 */
+    }
+    .empty-msg {
+      text-align: center;
+      padding: 60px 20px;
+      color: #64748b;
+      background: #fff;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container header-inner">
+      <h1>お知らせ・最新情報</h1>
+      <a href="/" class="admin-link">管理者ログイン</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <div id="post-list" class="post-list">
+      <div class="empty-msg">読み込み中...</div>
+    </div>
+  </main>
+
+  <script>
+    async function loadPosts() {
+      const listEl = document.getElementById('post-list');
+      try {
+        const res = await fetch('/api/posts');
+        const posts = await res.json();
+
+        if (!posts || posts.length === 0) {
+          listEl.innerHTML = '<div class="empty-msg">現在公開されている投稿はありません。</div>';
+          return;
+        }
+
+        listEl.innerHTML = '';
+        posts.forEach(post => {
+          const dateStr = new Date(post.created_at).toLocaleDateString('ja-JP', {
+            year: 'numeric', month: 'long', day: 'numeric'
+          });
+
+          const article = document.createElement('article');
+          article.className = 'post-card';
+          article.innerHTML = `
+            <div class="post-meta">
+              <span class="badge">${escapeHtml(post.category)}</span>
+              <time>${dateStr}</time>
+            </div>
+            <h2 class="post-title">${escapeHtml(post.title)}</h2>
+            <div class="post-content">${escapeHtml(post.content || '')}</div>
+          `;
+          listEl.appendChild(article);
+        });
+      } catch (err) {
+        listEl.innerHTML = '<div class="empty-msg">投稿の読み込みに失敗しました。</div>';
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    loadPosts();
+  </script>
+</body>
+</html>
