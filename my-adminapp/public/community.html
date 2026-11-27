@@ -4,40 +4,21 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>会員投稿・コミュニティ - My Service</title>
+  <link rel="stylesheet" href="/common.css">
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; line-height: 1.6; }
-
-    header { background-color: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 16px 0; margin-bottom: 36px; position: sticky; top: 0; z-index: 10; }
-    .nav-container { max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-    .logo { font-size: 20px; font-weight: 800; color: #0f172a; text-decoration: none; }
-    .nav-links { display: flex; align-items: center; gap: 20px; font-size: 14px; }
-    .nav-links a { color: #475569; text-decoration: none; font-weight: 500; }
-    .nav-links a:hover, .nav-links a.active { color: #2563eb; font-weight: 700; }
-    .btn-login { padding: 8px 16px; border: 1px solid #2563eb; color: #2563eb !important; border-radius: 6px; font-weight: 600 !important; }
-    .btn-register { padding: 8px 16px; background: #2563eb; color: #ffffff !important; border-radius: 6px; font-weight: 600 !important; }
-
-    .container { max-width: 780px; margin: 0 auto; padding: 0 20px 60px; }
+    .container { max-width: 780px; margin: 36px auto 0; padding: 0 20px 60px; }
     .page-title { font-size: 26px; font-weight: bold; color: #0f172a; margin-bottom: 24px; }
-
-    /* 投稿フォームカード */
     .post-form-card { background: #ffffff; padding: 24px; border-radius: 10px; border: 1px solid #cbd5e1; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin-bottom: 32px; }
     .post-form-card h2 { font-size: 17px; margin-bottom: 14px; color: #0f172a; }
     .form-group { margin-bottom: 14px; }
-    .form-group input, .form-group textarea {
-      width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; font-family: inherit;
-    }
+    .form-group input, .form-group textarea { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 15px; font-family: inherit; }
     .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.15); }
     .form-group textarea { height: 100px; resize: vertical; }
     .btn-submit { padding: 10px 24px; background: #2563eb; color: #fff; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; }
     .btn-submit:hover { background: #1d4ed8; }
-
-    /* 未ログイン時の案内 */
     .guest-banner { background: #eff6ff; border: 1px solid #bfdbfe; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 32px; }
     .guest-banner p { font-size: 14px; color: #1e40af; margin-bottom: 12px; font-weight: 500; }
     .guest-actions { display: flex; justify-content: center; gap: 12px; }
-
-    /* 投稿カード */
     .post-list { display: flex; flex-direction: column; gap: 20px; }
     .post-card { background: #ffffff; border-radius: 10px; padding: 22px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
     .post-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 13px; color: #64748b; }
@@ -45,19 +26,10 @@
     .post-title { font-size: 18px; font-weight: bold; color: #0f172a; margin-bottom: 8px; }
     .post-content { font-size: 15px; color: #334155; white-space: pre-wrap; margin-bottom: 16px; }
     .btn-delete { padding: 4px 10px; background: #fee2e2; color: #b91c1c; border: none; border-radius: 4px; font-size: 12px; cursor: pointer; }
-    .btn-delete:hover { background: #fecaca; }
-
-    /* いいね・リアクションバー */
     .reaction-bar { display: flex; align-items: center; gap: 16px; padding-top: 12px; border-top: 1px solid #f1f5f9; }
-    .btn-like {
-      display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px;
-      border: 1px solid #cbd5e1; background: #fff; color: #475569; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.15s;
-    }
-    .btn-like:hover { background: #fff1f2; border-color: #fda4af; color: #e11d48; }
+    .btn-like { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; border: 1px solid #cbd5e1; background: #fff; color: #475569; font-size: 13px; font-weight: 600; cursor: pointer; }
     .btn-like.liked { background: #ffe4e6; border-color: #fb7185; color: #e11d48; }
     .comment-count-label { font-size: 13px; color: #64748b; }
-
-    /* コメントセクション */
     .comments-section { margin-top: 14px; background: #f8fafc; border-radius: 8px; padding: 14px; border: 1px solid #e2e8f0; }
     .comment-item { padding: 10px 0; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
     .comment-item:last-of-type { border-bottom: none; }
@@ -65,18 +37,10 @@
     .comment-author { font-weight: bold; color: #334155; }
     .comment-text { color: #1e293b; white-space: pre-wrap; }
     .btn-del-comment { background: none; border: none; color: #ef4444; font-size: 11px; cursor: pointer; margin-left: 8px; }
-    .btn-del-comment:hover { text-decoration: underline; }
-
     .comment-form { display: flex; gap: 8px; margin-top: 10px; }
     .comment-form input { flex-grow: 1; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; background: #fff; }
-    .comment-form input:focus { outline: none; border-color: #2563eb; }
     .btn-comment-send { padding: 8px 16px; background: #0f172a; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: bold; cursor: pointer; white-space: nowrap; }
-    .btn-comment-send:hover { background: #334155; }
-
     .empty-msg { text-align: center; padding: 48px; background: #fff; border-radius: 8px; color: #64748b; border: 1px solid #e2e8f0; }
-
-    footer { padding: 32px 20px; text-align: center; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0; background: #fff; }
-    footer a { color: #64748b; text-decoration: none; margin: 0 10px; }
   </style>
 </head>
 <body>
@@ -144,18 +108,27 @@
       currentUser = meData.user;
 
       if (currentUser) {
-        document.getElementById('nav-links').innerHTML =
-          '<a href="/">ホーム</a>' +
-          '<a href="/news">お知らせ</a>' +
-          '<a href="/community" class="active">会員投稿</a>' +
-          '<a href="/contact">お問い合わせ</a>' +
-          '<a href="/mypage" class="btn-register">マイページ（' + escapeHtml(currentUser.name) + '様）</a>';
+        const nav = document.getElementById('nav-links');
+        nav.innerHTML = '';
+        const items = [
+          { href: '/', text: 'ホーム', cls: '' },
+          { href: '/news', text: 'お知らせ', cls: '' },
+          { href: '/community', text: '会員投稿', cls: 'active' },
+          { href: '/contact', text: 'お問い合わせ', cls: '' },
+          { href: '/mypage', text: 'マイページ（' + currentUser.name + '様）', cls: 'btn-register' }
+        ];
+        items.forEach(function(item) {
+          const a = document.createElement('a');
+          a.href = item.href;
+          a.textContent = item.text;
+          if (item.cls) a.className = item.cls;
+          nav.appendChild(a);
+        });
         document.getElementById('member-post-box').style.display = 'block';
         document.getElementById('form-heading').textContent = currentUser.name + ' として新しい投稿を作成';
       } else {
         document.getElementById('guest-box').style.display = 'block';
       }
-
       loadUserPosts();
     }
 
@@ -163,147 +136,174 @@
       const res = await fetch('/api/user-posts');
       const posts = await res.json();
       const listEl = document.getElementById('post-list');
+      listEl.innerHTML = '';
 
       if (!posts || posts.length === 0) {
-        listEl.innerHTML = '<div class="empty-msg">まだ投稿がありません。最初の投稿をしてみましょう！</div>';
+        const empty = document.createElement('div');
+        empty.className = 'empty-msg';
+        empty.textContent = 'まだ投稿がありません。最初の投稿をしてみましょう！';
+        listEl.appendChild(empty);
         return;
       }
 
-      listEl.innerHTML = '';
-      posts.forEach(post => {
-        const dateStr = new Date(post.created_at).toLocaleString('ja-JP', {
-          year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
-        });
+      posts.forEach(function(post) {
+        const card = document.createElement('div');
+        card.className = 'post-card';
 
-        const isOwner = currentUser && currentUser.id === post.user_id;
-        const deleteBtn = isOwner
-          ? '<button class="btn-delete" onclick="deletePost(' + post.id + ')">削除</button>'
-          : '';
+        const header = document.createElement('div');
+        header.className = 'post-header';
+        const author = document.createElement('span');
+        author.className = 'author-tag';
+        author.textContent = '👤 ' + post.author_name;
+        header.appendChild(author);
 
-        const likedClass = post.liked_by_me ? 'liked' : '';
-        const heartIcon = post.liked_by_me ? '♥' : '♡';
+        const right = document.createElement('div');
+        right.style.display = 'flex';
+        right.style.alignItems = 'center';
+        right.style.gap = '10px';
+        const dateSpan = document.createElement('span');
+        dateSpan.textContent = new Date(post.created_at).toLocaleString('ja-JP');
+        right.appendChild(dateSpan);
 
-        let commentsHtml = '';
-        if (post.comments && post.comments.length > 0) {
-          post.comments.forEach(c => {
-            const cDate = new Date(c.created_at).toLocaleString('ja-JP', {
-              month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit'
-            });
-            const isCommentOwner = currentUser && currentUser.id === c.user_id;
-            const delCommentBtn = isCommentOwner
-              ? '<button class="btn-del-comment" onclick="deleteComment(' + c.id + ')">削除</button>'
-              : '';
-
-            commentsHtml +=
-              '<div class="comment-item">' +
-                '<div class="comment-meta">' +
-                  '<span class="comment-author">↳ ' + escapeHtml(c.author_name) + '</span>' +
-                  '<div><span>' + cDate + '</span>' + delCommentBtn + '</div>' +
-                '</div>' +
-                '<div class="comment-text">' + escapeHtml(c.comment) + '</div>' +
-              '</div>';
-          });
-        } else {
-          commentsHtml = '<div style="font-size:12px; color:#94a3b8;">まだコメントはありません</div>';
+        if (currentUser && currentUser.id === post.user_id) {
+          const delBtn = document.createElement('button');
+          delBtn.className = 'btn-delete';
+          delBtn.textContent = '削除';
+          delBtn.onclick = function() { deletePost(post.id); };
+          right.appendChild(delBtn);
         }
+        header.appendChild(right);
 
-        const replyFormHtml = currentUser
-          ? '<form class="comment-form" onsubmit="submitComment(event, ' + post.id + ')">' +
-              '<input type="text" id="comment-input-' + post.id + '" placeholder="返信コメントを入力..." required>' +
-              '<button type="submit" class="btn-comment-send">返信</button>' +
-            '</form>'
-          : '';
+        const h3 = document.createElement('h3');
+        h3.className = 'post-title';
+        h3.textContent = post.title;
 
-        const div = document.createElement('div');
-        div.className = 'post-card';
-        div.innerHTML =
-          '<div class="post-header">' +
-            '<span class="author-tag">👤 ' + escapeHtml(post.author_name) + '</span>' +
-            '<div style="display:flex; align-items:center; gap:10px;">' +
-              '<span>' + dateStr + '</span>' +
-              deleteBtn +
-            '</div>' +
-          '</div>' +
-          '<h3 class="post-title">' + escapeHtml(post.title) + '</h3>' +
-          '<div class="post-content">' + escapeHtml(post.content) + '</div>' +
-          '<div class="reaction-bar">' +
-            '<button class="btn-like ' + likedClass + '" onclick="toggleLike(' + post.id + ')">' +
-              '<span>' + heartIcon + ' いいね</span>' +
-              '<span>' + post.like_count + '</span>' +
-            '</button>' +
-            '<span class="comment-count-label">💬 コメント (' + (post.comments ? post.comments.length : 0) + '件)</span>' +
-          '</div>' +
-          '<div class="comments-section">' +
-            commentsHtml +
-            replyFormHtml +
-          '</div>';
-        listEl.appendChild(div);
-      });
-    }
+        const body = document.createElement('div');
+        body.className = 'post-content';
+        body.textContent = post.content;
 
-    document.getElementById('user-post-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const titleInput = document.getElementById('post-title');
-      const contentInput = document.getElementById('post-content');
-      const res = await fetch('/api/user-posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: titleInput.value, content: contentInput.value })
-      });
-      if (res.ok) {
-        titleInput.value = '';
-        contentInput.value = '';
-        loadUserPosts();
-      }
-    });
+        const rBar = document.createElement('div');
+        rBar.className = 'reaction-bar';
+        const likeBtn = document.createElement('button');
+        likeBtn.className = 'btn-like' + (post.liked_by_me ? ' liked' : '');
+        likeBtn.textContent = (post.liked_by_me ? '♥ いいね ' : '♡ いいね ') + post.like_count;
+        likeBtn.onclick = function() { toggleLike(post.id); };
 
-    async function toggleLike(postId) {
-      if (!currentUser) {
-        alert('「いいね」をするには会員ログインが必要です。');
-        window.location.href = '/login';
-        return;
-      }
-      await fetch('/api/user-posts/' + postId + '/like', { method: 'POST' });
-      loadUserPosts();
-    }
+        const cLabel = document.createElement('span');
+        cLabel.className = 'comment-count-label';
+        cLabel.textContent = '💬 コメント (' + (post.comments ? post.comments.length : 0) + '件)';
+        rBar.appendChild(likeBtn);
+        rBar.appendChild(cLabel);
 
-    async function submitComment(e, postId) {
-      e.preventDefault();
-      const input = document.getElementById('comment-input-' + postId);
-      if (!input.value.trim()) return;
-
-      const res = await fetch('/api/user-posts/' + postId + '/comments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ comment: input.value })
-      });
-      if (res.ok) {
-        loadUserPosts();
-      }
-    }
-
-    async function deletePost(id) {
-      if (!confirm('自分の投稿を削除しますか？')) return;
-      await fetch('/api/user-posts/' + id, { method: 'DELETE' });
-      loadUserPosts();
-    }
-
-    async function deleteComment(id) {
-      if (!confirm('このコメントを削除しますか？')) return;
-      await fetch('/api/comments/' + id, { method: 'DELETE' });
-      loadUserPosts();
-    }
-
-    function escapeHtml(str) {
-      return String(str)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;');
-    }
-
-    init();
+        const cSec = document.createElement('div');
+        cSec.className = 'comments-section';
+        if (post.comments && post.comments.length > 0) {
+          post.comments.forEach(function(c) {
+            const cItem = document.createElement('div');
+            cItem.className = 'comment-item';
+            const cMeta = document.createElement('div');
+            cMeta.className = 'comment-meta';
+const cAuth = document.createElement('span');
+cAuth.className = 'comment-author';
+cAuth.textContent = '↳ ' + c.author_name;
+cMeta.appendChild(cAuth);
+const cRight = document.createElement('div');
+const cDate = document.createElement('span');
+cDate.textContent = new Date(c.created_at).toLocaleString('ja-JP');
+cRight.appendChild(cDate);
+if (currentUser && currentUser.id === c.user_id) {
+const delC = document.createElement('button');
+delC.className = 'btn-del-comment';
+delC.textContent = '削除';
+delC.onclick = function() { deleteComment(c.id); };
+cRight.appendChild(delC);
+}
+cMeta.appendChild(cRight);
+const cText = document.createElement('div');
+cText.className = 'comment-text';
+cText.textContent = c.comment;
+cItem.appendChild(cMeta);
+cItem.appendChild(cText);
+cSec.appendChild(cItem);
+});
+} else {
+const noC = document.createElement('div');
+noC.style.fontSize = '12px';
+noC.style.color = '#94a3b8';
+noC.textContent = 'まだコメントはありません';
+cSec.appendChild(noC);
+}
+if (currentUser) {
+const form = document.createElement('form');
+form.className = 'comment-form';
+const inp = document.createElement('input');
+inp.type = 'text';
+inp.placeholder = '返信コメントを入力...';
+inp.required = true;
+const sendBtn = document.createElement('button');
+sendBtn.type = 'submit';
+sendBtn.className = 'btn-comment-send';
+sendBtn.textContent = '返信';
+form.onsubmit = function(e) {
+e.preventDefault();
+submitComment(post.id, inp.value);
+};
+form.appendChild(inp);
+form.appendChild(sendBtn);
+cSec.appendChild(form);
+}
+card.appendChild(header);
+card.appendChild(h3);
+card.appendChild(body);
+card.appendChild(rBar);
+card.appendChild(cSec);
+listEl.appendChild(card);
+});
+}
+document.getElementById('user-post-form').addEventListener('submit', async function(e) {
+e.preventDefault();
+const titleInput = document.getElementById('post-title');
+const contentInput = document.getElementById('post-content');
+const res = await fetch('/api/user-posts', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ title: titleInput.value, content: contentInput.value })
+});
+if (res.ok) {
+titleInput.value = '';
+contentInput.value = '';
+loadUserPosts();
+}
+});
+async function toggleLike(postId) {
+if (!currentUser) {
+alert('「いいね」をするには会員ログインが必要です。');
+window.location.href = '/login';
+return;
+}
+await fetch('/api/user-posts/' + postId + '/like', { method: 'POST' });
+loadUserPosts();
+}
+async function submitComment(postId, text) {
+if (!text.trim()) return;
+const res = await fetch('/api/user-posts/' + postId + '/comments', {
+method: 'POST',
+headers: { 'Content-Type': 'application/json' },
+body: JSON.stringify({ comment: text })
+});
+if (res.ok) loadUserPosts();
+}
+async function deletePost(id) {
+if (!confirm('自分の投稿を削除しますか？')) return;
+await fetch('/api/user-posts/' + id, { method: 'DELETE' });
+loadUserPosts();
+}
+async function deleteComment(id) {
+if (!confirm('このコメントを削除しますか？')) return;
+await fetch('/api/comments/' + id, { method: 'DELETE' });
+loadUserPosts();
+}
+init();
   </script>
 </body>
 </html>
-
