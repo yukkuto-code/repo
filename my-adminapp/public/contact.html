@@ -8,17 +8,15 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; line-height: 1.6; }
 
-    /* 共通ヘッダー */
     header { background-color: #ffffff; border-bottom: 1px solid #e2e8f0; padding: 16px 0; margin-bottom: 40px; position: sticky; top: 0; z-index: 10; }
     .nav-container { max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
     .logo { font-size: 20px; font-weight: 800; color: #0f172a; text-decoration: none; }
-    .nav-links { display: flex; align-items: center; gap: 20px; font-size: 14px; }
+    .nav-links { display: flex; align-items: center; gap: 18px; font-size: 14px; flex-wrap: wrap; }
     .nav-links a { color: #475569; text-decoration: none; font-weight: 500; }
     .nav-links a:hover, .nav-links a.active { color: #2563eb; font-weight: 700; }
     .btn-login { padding: 8px 16px; border: 1px solid #2563eb; color: #2563eb !important; border-radius: 6px; font-weight: 600 !important; }
     .btn-register { padding: 8px 16px; background: #2563eb; color: #ffffff !important; border-radius: 6px; font-weight: 600 !important; }
 
-    /* フォームカード */
     .container { max-width: 680px; margin: 0 auto; padding: 0 20px 60px; }
     .page-title { font-size: 26px; font-weight: bold; color: #0f172a; margin-bottom: 24px; }
     .form-card { background: #ffffff; padding: 32px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); border: 1px solid #e2e8f0; }
@@ -58,6 +56,7 @@
       <nav class="nav-links" id="nav-links">
         <a href="/">ホーム</a>
         <a href="/news">お知らせ</a>
+        <a href="/community">会員投稿</a>
         <a href="/contact" class="active">お問い合わせ</a>
         <a href="/login" class="btn-login">ログイン</a>
         <a href="/register" class="btn-register">新規会員登録</a>
@@ -112,6 +111,7 @@
     <div style="margin-bottom: 10px;">
       <a href="/">ホーム</a>
       <a href="/news">お知らせ</a>
+      <a href="/community">会員投稿</a>
       <a href="/contact">お問い合わせ</a>
       <a href="/admin">管理者ログイン</a>
     </div>
@@ -119,23 +119,32 @@
   </footer>
 
   <script>
-    // ログイン済みの会員なら名前とメールアドレスを自動入力
     async function checkAuth() {
       const res = await fetch('/api/me');
       const data = await res.json();
       if (data.user) {
-        document.getElementById('nav-links').innerHTML = `
-          <a href="/">ホーム</a>
-          <a href="/news">お知らせ</a>
-          <a href="/contact" class="active">お問い合わせ</a>
-          <a href="/mypage" class="btn-register">マイページ（${escapeHtml(data.user.name)}様）</a>
-        `;
+        const nav = document.getElementById('nav-links');
+        nav.innerHTML = '';
+        const items = [
+          { href: '/', text: 'ホーム', cls: '' },
+          { href: '/news', text: 'お知らせ', cls: '' },
+          { href: '/community', text: '会員投稿', cls: '' },
+          { href: '/contact', text: 'お問い合わせ', cls: 'active' },
+          { href: '/mypage', text: 'マイページ（' + data.user.name + '様）', cls: 'btn-register' }
+        ];
+        items.forEach(function(item) {
+          const a = document.createElement('a');
+          a.href = item.href;
+          a.textContent = item.text;
+          if (item.cls) a.className = item.cls;
+          nav.appendChild(a);
+        });
         document.getElementById('name').value = data.user.name;
         document.getElementById('email').value = data.user.email;
       }
     }
 
-    document.getElementById('contact-form').addEventListener('submit', async (e) => {
+    document.getElementById('contact-form').addEventListener('submit', async function(e) {
       e.preventDefault();
       const btn = document.getElementById('submit-btn');
       btn.disabled = true;
@@ -154,7 +163,6 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-
         if (res.ok) {
           document.getElementById('form-wrapper').style.display = 'none';
           document.getElementById('success-wrapper').style.display = 'block';
@@ -169,10 +177,6 @@
         btn.textContent = '送信する';
       }
     });
-
-    function escapeHtml(str) {
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-    }
 
     checkAuth();
   </script>
