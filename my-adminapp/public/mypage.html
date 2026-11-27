@@ -3,20 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>会員マイページ</title>
+  <title>会員マイページ - My Service</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; color: #1e293b; }
-    header { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 16px 0; margin-bottom: 32px; }
-    .container { max-width: 800px; margin: 0 auto; padding: 0 20px; }
-    .nav-bar { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
-    .logo { font-size: 18px; font-weight: bold; color: #0f172a; text-decoration: none; }
-    .nav-actions { display: flex; align-items: center; gap: 10px; }
-    .btn-post-nav { padding: 8px 14px; background: #2563eb; color: #fff; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: bold; }
-    .btn-post-nav:hover { background: #1d4ed8; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f8fafc; color: #1e293b; line-height: 1.6; }
+
+    header { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 16px 0; margin-bottom: 32px; position: sticky; top: 0; z-index: 10; }
+    .nav-container { max-width: 1000px; margin: 0 auto; padding: 0 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .logo { font-size: 20px; font-weight: 800; color: #0f172a; text-decoration: none; }
+    .nav-links { display: flex; align-items: center; gap: 18px; font-size: 14px; flex-wrap: wrap; }
+    .nav-links a { color: #475569; text-decoration: none; font-weight: 500; }
+    .nav-links a:hover, .nav-links a.active { color: #2563eb; font-weight: 700; }
     .btn-logout { padding: 8px 14px; background: #ef4444; color: #fff; border: none; border-radius: 6px; font-size: 13px; cursor: pointer; font-weight: bold; }
     .btn-logout:hover { background: #dc2626; }
 
+    .container { max-width: 800px; margin: 0 auto; padding: 0 20px 60px; }
     .card { background: #fff; border-radius: 10px; padding: 28px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); margin-bottom: 24px; }
     .welcome { font-size: 22px; font-weight: bold; margin-bottom: 8px; }
     .sub { font-size: 14px; color: #64748b; margin-bottom: 20px; }
@@ -27,19 +28,26 @@
     .quick-links { display: flex; gap: 12px; flex-wrap: wrap; }
     .q-btn { padding: 12px 20px; background: #eff6ff; color: #1d4ed8; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px; }
     .q-btn:hover { background: #dbeafe; }
+
+    footer { padding: 32px 20px; text-align: center; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0; background: #fff; }
+    footer a { color: #64748b; text-decoration: none; margin: 0 10px; }
   </style>
 </head>
 <body>
 
   <header>
-    <div class="container nav-bar">
-      <a href="/" class="logo">My Service マイページ</a>
-      <div class="nav-actions">
-        <a href="/community" class="btn-post-nav">＋ 記事を投稿する</a>
-        <form action="/user/logout" method="POST">
+    <div class="nav-container">
+      <a href="/" class="logo">My Service</a>
+      <nav class="nav-links">
+        <a href="/">ホーム</a>
+        <a href="/news">お知らせ</a>
+        <a href="/community">会員投稿</a>
+        <a href="/contact">お問い合わせ</a>
+        <a href="/mypage" class="active">マイページ</a>
+        <form action="/user/logout" method="POST" style="display:inline;">
           <button type="submit" class="btn-logout">ログアウト</button>
         </form>
-      </div>
+      </nav>
     </div>
   </header>
 
@@ -71,13 +79,24 @@
     <div class="card">
       <h2 style="font-size: 16px; margin-bottom: 16px;">メニュー</h2>
       <div class="quick-links">
-        <a href="/community" class="q-btn" style="background:#2563eb; color:#fff;">＋ 記事を投稿する</a>
+        <a href="/community" class="q-btn" style="background:#2563eb; color:#fff;">＋ 会員投稿ページへ行く</a>
         <a href="/" class="q-btn">トップページへ</a>
         <a href="/news" class="q-btn">最新のお知らせを見る</a>
         <a href="/contact" class="q-btn">運営へお問い合わせ</a>
       </div>
     </div>
   </main>
+
+  <footer>
+    <div style="margin-bottom: 10px;">
+      <a href="/">ホーム</a>
+      <a href="/news">お知らせ</a>
+      <a href="/community">会員投稿</a>
+      <a href="/contact">お問い合わせ</a>
+      <a href="/admin">管理者ログイン</a>
+    </div>
+    <p>&copy; 2026 My Service. All rights reserved.</p>
+  </footer>
 
   <script>
     async function loadProfile() {
@@ -87,8 +106,8 @@
         window.location.href = '/login';
         return;
       }
-      document.getElementById('user-welcome').textContent = `こんにちは、${data.user.name} さん`;
-      document.getElementById('user-id').textContent = `#${data.user.id}`;
+      document.getElementById('user-welcome').textContent = 'こんにちは、' + data.user.name + ' さん';
+      document.getElementById('user-id').textContent = '#' + data.user.id;
       document.getElementById('user-name').textContent = data.user.name;
       document.getElementById('user-email').textContent = data.user.email;
       document.getElementById('user-date').textContent = new Date(data.user.created_at).toLocaleDateString('ja-JP');
