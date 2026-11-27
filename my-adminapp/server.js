@@ -90,7 +90,7 @@ initDB();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(expres.static(path.join(__dirname,'public')));
+app.use(express.static(path.join(__dirname,'public')));
 app.use(session({
   secret: SESSION_SECRET,
   resave: false,
