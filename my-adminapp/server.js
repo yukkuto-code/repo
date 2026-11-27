@@ -22,7 +22,6 @@ function hashPassword(password) {
   return crypto.createHash('sha256').update(password + SESSION_SECRET).digest('hex');
 }
 
-// 全6テーブルを自動作成
 async function initDB() {
   try {
     await pool.query(
@@ -90,7 +89,7 @@ initDB();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static(path.join(__dirname,'public')));
+
 app.use(session({
   secret: SESSION_SECRET,
   resave: false,
@@ -116,9 +115,8 @@ function requireUserApi(req, res, next) {
 }
 
 // ==========================================
-// ▼ 画面ルート
+// ▼ 1. 画面ルート（これを最初に書くことで確実に home.html が開きます）
 // ==========================================
-
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'home.html')));
 app.get('/news', (req, res) => res.sendFile(path.join(__dirname, 'public', 'news.html')));
 app.get('/contact', (req, res) => res.sendFile(path.join(__dirname, 'public', 'contact.html')));
@@ -141,9 +139,12 @@ app.get('/admin', (req, res) => {
 app.get('/dashboard', requireAdmin, (req, res) => res.sendFile(path.join(__dirname, 'public', 'dashboard.html')));
 
 // ==========================================
-// ▼ 認証処理
+// ▼ 2. 静的ファイル配信（common.css 用。画面ルートより下に配置）
 // ==========================================
-
+app.use(express.static(path.join(__dirname, 'public')));
+// ==========================================
+// ▼ 3. 認証処理（一般会員・管理者）
+// ==========================================
 app.post('/user/register', async (req, res) => {
   const { name, email, password } = req.body;
   if (!name || !email || !password) return res.redirect('/register?error=missing');
@@ -202,9 +203,8 @@ app.post('/admin/logout', (req, res) => {
 });
 
 // ==========================================
-// ▼ 会員投稿・いいね・コメントAPI
+// ▼ 4. 会員投稿・いいね・コメントAPI
 // ==========================================
-
 app.get('/api/user-posts', async (req, res) => {
   const currentUserId = req.session && req.session.user ? req.session.user.id : -1;
   try {
@@ -230,7 +230,6 @@ app.get('/api/user-posts', async (req, res) => {
 
     res.json(enrichedPosts);
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: '取得エラー' });
   }
 });
@@ -292,107 +291,118 @@ app.post('/api/user-posts/:id/comments', requireUserApi, async (req, res) => {
   const user = req.session.user;
   try {
     await pool.query(
-'INSERT INTO post_comments (post_id, user_id, author_name, comment) VALUES ($1, $2, $3, $4)',
-[postId, user.id, user.name, comment.trim()]
-);
-res.status(201).json({ success: true });
-} catch (err) {
-res.status(500).json({ error: 'コメント投稿エラー' });
-}
+      'INSERT INTO post_comments (post_id, user_id, author_name, comment) VALUES ($1, $2, $3, $4)',
+      [postId, user.id, user.name, comment.trim()]
+    );
+    res.status(201).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: 'コメント投稿エラー' });
+  }
 });
+
 app.delete('/api/comments/:id', async (req, res) => {
-const commentId = parseInt(req.params.id, 10);
-const user = req.session ? req.session.user : null;
-const isAdmin = req.session ? req.session.isAdmin : false;
-if (!user && !isAdmin) return res.status(401).json({ error: '権限がありません' });
-try {
-if (isAdmin) {
-await pool.query('DELETE FROM post_comments WHERE id = $1', [commentId]);
-} else {
-await pool.query('DELETE FROM post_comments WHERE id = $1 AND user_id = $2', [commentId, user.id]);
-}
-res.json({ success: true });
-} catch (err) {
-res.status(500).json({ error: '削除エラー' });
-}
+  const commentId = parseInt(req.params.id, 10);
+  const user = req.session ? req.session.user : null;
+  const isAdmin = req.session ? req.session.isAdmin : false;
+  if (!user && !isAdmin) return res.status(401).json({ error: '権限がありません' });
+
+  try {
+    if (isAdmin) {
+      await pool.query('DELETE FROM post_comments WHERE id = $1', [commentId]);
+    } else {
+      await pool.query('DELETE FROM post_comments WHERE id = $1 AND user_id = $2', [commentId, user.id]);
+    }
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: '削除エラー' });
+  }
 });
+
 // ==========================================
-// ▼ 運営投稿・お問い合わせ・会員管理API
+// ▼ 5. 運営投稿・お問い合わせ・会員管理API
 // ==========================================
 app.get('/api/posts', async (req, res) => {
-try {
-const result = await pool.query('SELECT * FROM posts ORDER BY id DESC');
-res.json(result.rows);
-} catch (err) {
-res.status(500).json({ error: '取得エラー' });
-}
+  try {
+    const result = await pool.query('SELECT * FROM posts ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: '取得エラー' });
+  }
 });
+
 app.post('/api/posts', requireAdminApi, async (req, res) => {
-const { title, category, content } = req.body;
-if (!title) return res.status(400).json({ error: 'タイトル必須' });
-try {
-const result = await pool.query(
-'INSERT INTO posts (category, title, content) VALUES ($1, $2, $3) RETURNING *',
-[category || '一般', title, content || '']
-);
-res.status(201).json(result.rows[0]);
-} catch (err) {
-res.status(500).json({ error: '保存エラー' });
-}
+  const { title, category, content } = req.body;
+  if (!title) return res.status(400).json({ error: 'タイトル必須' });
+  try {
+    const result = await pool.query(
+      'INSERT INTO posts (category, title, content) VALUES ($1, $2, $3) RETURNING *',
+      [category || '一般', title, content || '']
+    );
+    res.status(201).json(result.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: '保存エラー' });
+  }
 });
+
 app.delete('/api/posts/:id', requireAdminApi, async (req, res) => {
-try {
-await pool.query('DELETE FROM posts WHERE id = $1', [parseInt(req.params.id, 10)]);
-res.json({ success: true });
-} catch (err) {
-res.status(500).json({ error: '削除エラー' });
-}
+  try {
+    await pool.query('DELETE FROM posts WHERE id = $1', [parseInt(req.params.id, 10)]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: '削除エラー' });
+  }
 });
+
 app.post('/api/inquiries', async (req, res) => {
-const { name, email, subject, message } = req.body;
-if (!name || !email || !message) return res.status(400).json({ error: '必須項目不足' });
-try {
-await pool.query(
-'INSERT INTO inquiries (name, email, subject, message) VALUES ($1, $2, $3, $4)',
-[name, email, subject || '件名なし', message]
-);
-res.status(201).json({ success: true });
-} catch (err) {
-res.status(500).json({ error: '送信エラー' });
-}
+  const { name, email, subject, message } = req.body;
+  if (!name || !email || !message) return res.status(400).json({ error: '必須項目不足' });
+  try {
+    await pool.query(
+      'INSERT INTO inquiries (name, email, subject, message) VALUES ($1, $2, $3, $4)',
+      [name, email, subject || '件名なし', message]
+    );
+    res.status(201).json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: '送信エラー' });
+  }
 });
+
 app.get('/api/inquiries', requireAdminApi, async (req, res) => {
-try {
-const result = await pool.query('SELECT * FROM inquiries ORDER BY id DESC');
-res.json(result.rows);
-} catch (err) {
-res.status(500).json({ error: '取得エラー' });
-}
+  try {
+    const result = await pool.query('SELECT * FROM inquiries ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: '取得エラー' });
+  }
 });
+
 app.delete('/api/inquiries/:id', requireAdminApi, async (req, res) => {
-try {
-await pool.query('DELETE FROM inquiries WHERE id = $1', [parseInt(req.params.id, 10)]);
-res.json({ success: true });
-} catch (err) {
-res.status(500).json({ error: '削除エラー' });
-}
+  try {
+    await pool.query('DELETE FROM inquiries WHERE id = $1', [parseInt(req.params.id, 10)]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: '削除エラー' });
+  }
 });
+
 app.get('/api/users', requireAdminApi, async (req, res) => {
-try {
-const result = await pool.query('SELECT id, name, email, created_at FROM users ORDER BY id DESC');
-res.json(result.rows);
-} catch (err) {
-res.status(500).json({ error: '取得エラー' });
-}
+  try {
+    const result = await pool.query('SELECT id, name, email, created_at FROM users ORDER BY id DESC');
+    res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: '取得エラー' });
+  }
 });
+
 app.delete('/api/users/:id', requireAdminApi, async (req, res) => {
-try {
-await pool.query('DELETE FROM users WHERE id = $1', [parseInt(req.params.id, 10)]);
-res.json({ success: true });
-} catch (err) {
-res.status(500).json({ error: '削除エラー' });
-}
+  try {
+    await pool.query('DELETE FROM users WHERE id = $1', [parseInt(req.params.id, 10)]);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: '削除エラー' });
+  }
 });
+
 app.listen(PORT, '0.0.0.0', () => {
-console.log('Server is running on port ' + PORT);
+  console.log('Server is running on port ' + PORT);
 });
