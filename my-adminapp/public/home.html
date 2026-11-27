@@ -119,21 +119,47 @@
 
   <script>
     // ログイン状態に応じてヘッダーの表示を切り替え
+    // ログイン状態に応じてヘッダーの表示を切り替え
     async function checkAuth() {
       const res = await fetch('/api/me');
       const data = await res.json();
       if (data.user) {
-        document.getElementById('nav-links').innerHTML = `
-          <a href="/news">お知らせ</a>
-          <a href="/contact">お問い合わせ</a>
-          <a href="/mypage" class="btn-register">マイページ（${escapeHtml(data.user.name)}様）</a>
-        `;
-        document.getElementById('hero-buttons').innerHTML = `
-          <a href="/mypage" class="btn-hero-primary">マイページへ移動する</a>
-          <a href="/news" class="btn-hero-secondary">最新のお知らせを見る</a>
-        `;
+        const nav = document.getElementById('nav-links');
+        nav.innerHTML = '';
+
+        const links = [
+          { href: '/news', text: 'お知らせ', cls: '' },
+          { href: '/community', text: '会員投稿', cls: '' },
+          { href: '/contact', text: 'お問い合わせ', cls: '' },
+          { href: '/mypage', text: 'マイページ（' + data.user.name + '様）', cls: 'btn-register' }
+        ];
+
+        links.forEach(function(item) {
+          const a = document.createElement('a');
+          a.href = item.href;
+          a.textContent = item.text;
+          if (item.cls) a.className = item.cls;
+          nav.appendChild(a);
+        });
+
+        const heroBtns = document.getElementById('hero-buttons');
+        heroBtns.innerHTML = '';
+
+        const btn1 = document.createElement('a');
+        btn1.href = '/community';
+        btn1.className = 'btn-hero-primary';
+        btn1.textContent = '会員投稿ページへ行く';
+
+        const btn2 = document.createElement('a');
+        btn2.href = '/mypage';
+        btn2.className = 'btn-hero-secondary';
+        btn2.textContent = 'マイページを見る';
+
+        heroBtns.appendChild(btn1);
+        heroBtns.appendChild(btn2);
       }
     }
+
 
     // 最新3件のお知らせを表示
     async function loadLatestNews() {
