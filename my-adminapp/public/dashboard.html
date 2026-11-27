@@ -6,57 +6,38 @@
   <title>管理ダッシュボード</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f4f6f9; color: #333; display: flex; min-height: 100vh; }
-
+    body { font-family: sans-serif; background: #f4f6f9; color: #333; display: flex; min-height: 100vh; }
     .sidebar { width: 240px; background: #1e293b; color: #fff; display: flex; flex-direction: column; flex-shrink: 0; }
     .sidebar-header { padding: 20px; font-size: 18px; font-weight: bold; border-bottom: 1px solid #334155; }
     .nav-menu { list-style: none; padding: 15px 0; flex-grow: 1; }
-    .nav-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; cursor: pointer; color: #cbd5e1; text-decoration: none; transition: 0.2s; }
+    .nav-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; cursor: pointer; color: #cbd5e1; }
     .nav-item:hover, .nav-item.active { background: #334155; color: #fff; border-left: 4px solid #3b82f6; }
     .count-pill { background: #3b82f6; color: #fff; font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: bold; }
     .logout-box { padding: 20px; border-top: 1px solid #334155; }
     .btn-logout { width: 100%; padding: 10px; background: #ef4444; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    .btn-logout:hover { background: #dc2626; }
-
     .main-content { flex-grow: 1; padding: 30px; overflow-y: auto; }
     .header-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px; }
     .page-title { font-size: 24px; color: #0f172a; }
     .link-group { display: flex; gap: 10px; flex-wrap: wrap; }
     .btn-link { padding: 9px 14px; background: #0f172a; color: #fff; text-decoration: none; border-radius: 6px; font-size: 13px; font-weight: bold; }
-    .btn-link:hover { opacity: 0.85; }
-
     .panel { background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 24px; }
     .panel h2 { font-size: 18px; margin-bottom: 16px; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; }
-
     .add-form { display: flex; flex-direction: column; gap: 12px; }
     .form-row { display: flex; gap: 10px; flex-wrap: wrap; }
     .add-form input, .add-form select, .add-form textarea { padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 14px; font-family: inherit; }
     .add-form input { flex-grow: 1; }
     .add-form textarea { width: 100%; height: 90px; resize: vertical; }
     .btn-add { align-self: flex-start; padding: 10px 24px; background: #2563eb; color: #fff; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; }
-    .btn-add:hover { background: #1d4ed8; }
-
     table { width: 100%; border-collapse: collapse; }
-    th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; vertical-align: top; }
+    th, td { text-align: left; padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 14px; }
     th { background: #f8fafc; color: #475569; }
-    .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; background: #e0f2fe; color: #0369a1; white-space: nowrap; }
-    .btn-delete { padding: 6px 12px; background: #fee2e2; color: #b91c1c; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; white-space: nowrap; }
-    .btn-delete:hover { background: #fecaca; }
-
-    /* カード型リスト（お問い合わせ・会員投稿監視用） */
+    .badge { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; background: #e0f2fe; color: #0369a1; }
+    .btn-delete { padding: 6px 12px; background: #fee2e2; color: #b91c1c; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; }
     .item-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #f8fafc; }
-    .item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 10px; flex-wrap: wrap; }
-    .item-meta { font-size: 13px; color: #475569; }
+    .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 10px; flex-wrap: wrap; }
     .item-body { background: #fff; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 14px; white-space: pre-wrap; margin-top: 8px; }
     .comment-admin-box { margin-top: 10px; padding-left: 12px; border-left: 3px solid #cbd5e1; font-size: 13px; }
-    .comment-admin-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; color: #334155; }
-
-    @media (max-width: 768px) {
-      body { flex-direction: column; }
-      .sidebar { width: 100%; }
-      .nav-menu { display: flex; flex-wrap: wrap; padding: 0; }
-      .nav-item { flex: 1 1 50%; justify-content: center; gap: 6px; border-left: none !important; font-size: 13px; padding: 12px 8px; }
-    }
+    .comment-admin-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; }
   </style>
 </head>
 <body>
@@ -65,20 +46,16 @@
     <div class="sidebar-header">Admin Console</div>
     <ul class="nav-menu">
       <li class="nav-item active" onclick="switchTab('posts', this)">
-        <span>お知らせ投稿</span>
-        <span class="count-pill" id="post-badge">0</span>
+        <span>お知らせ投稿</span><span class="count-pill" id="post-badge">0</span>
       </li>
       <li class="nav-item" onclick="switchTab('community', this)">
-        <span>会員投稿管理</span>
-        <span class="count-pill" id="user-post-badge" style="background:#8b5cf6;">0</span>
+        <span>会員投稿管理</span><span class="count-pill" id="user-post-badge" style="background:#8b5cf6;">0</span>
       </li>
       <li class="nav-item" onclick="switchTab('inquiries', this)">
-        <span>お問い合わせ</span>
-        <span class="count-pill" id="inquiry-badge" style="background:#f59e0b;">0</span>
+        <span>お問い合わせ</span><span class="count-pill" id="inquiry-badge" style="background:#f59e0b;">0</span>
       </li>
       <li class="nav-item" onclick="switchTab('users', this)">
-        <span>登録会員</span>
-        <span class="count-pill" id="user-badge" style="background:#10b981;">0</span>
+        <span>登録会員</span><span class="count-pill" id="user-badge" style="background:#10b981;">0</span>
       </li>
     </ul>
     <div class="logout-box">
@@ -98,7 +75,6 @@
       </div>
     </div>
 
-    <!-- タブ1：運営のお知らせ投稿管理 -->
     <div id="tab-posts">
       <div class="panel">
         <h2>新規お知らせの作成</h2>
@@ -111,31 +87,26 @@
             </select>
             <input type="text" id="post-title" placeholder="投稿のタイトルを入力" required>
           </div>
-          <textarea id="post-content" placeholder="本文を入力してください（改行もそのまま表示されます）"></textarea>
+          <textarea id="post-content" placeholder="本文を入力してください"></textarea>
           <button type="submit" class="btn-add">公開する</button>
         </form>
       </div>
-
       <div class="panel">
         <h2>公開中のお知らせ一覧</h2>
         <table>
-          <thead>
-            <tr><th>ID</th><th>カテゴリ</th><th>タイトル</th><th>投稿日時</th><th>操作</th></tr>
-          </thead>
+          <thead><tr><th>ID</th><th>カテゴリ</th><th>タイトル</th><th>投稿日時</th><th>操作</th></tr></thead>
           <tbody id="posts-table-body"></tbody>
         </table>
       </div>
     </div>
 
-    <!-- タブ2：一般会員の投稿監視・削除 -->
     <div id="tab-community" style="display: none;">
       <div class="panel">
-        <h2>一般会員の投稿・コメント一覧（監視・削除）</h2>
+        <h2>一般会員の投稿・コメント一覧</h2>
         <div id="user-posts-list">読み込み中...</div>
       </div>
     </div>
 
-    <!-- タブ3：お問い合わせ -->
     <div id="tab-inquiries" style="display: none;">
       <div class="panel">
         <h2>受信したお問い合わせ一覧</h2>
@@ -143,14 +114,11 @@
       </div>
     </div>
 
-    <!-- タブ4：登録会員一覧 -->
     <div id="tab-users" style="display: none;">
       <div class="panel">
         <h2>一般登録会員一覧</h2>
         <table>
-          <thead>
-            <tr><th>ID</th><th>お名前</th><th>メールアドレス</th><th>登録日時</th><th>操作</th></tr>
-          </thead>
+          <thead><tr><th>ID</th><th>お名前</th><th>メールアドレス</th><th>登録日時</th><th>操作</th></tr></thead>
           <tbody id="users-table-body"></tbody>
         </table>
       </div>
@@ -159,148 +127,157 @@
 
   <script>
     function switchTab(tab, el) {
-      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(function(item) { item.classList.remove('active'); });
       el.classList.add('active');
-      document.getElementById('tab-posts').style.display = tab === 'posts' ? 'block' : 'none';
-      document.getElementById('tab-community').style.display = tab === 'community' ? 'block' : 'none';
-      document.getElementById('tab-inquiries').style.display = tab === 'inquiries' ? 'block' : 'none';
-      document.getElementById('tab-users').style.display = tab === 'users' ? 'block' : 'none';
-
-      const titles = {
-        posts: 'お知らせ投稿管理',
-        community: '一般会員の投稿・コメント管理',
-        inquiries: 'お問い合わせ受信一覧',
-        users: '一般登録会員一覧'
-      };
+      document.getElementById('tab-posts').style.display = (tab === 'posts') ? 'block' : 'none';
+      document.getElementById('tab-community').style.display = (tab === 'community') ? 'block' : 'none';
+      document.getElementById('tab-inquiries').style.display = (tab === 'inquiries') ? 'block' : 'none';
+      document.getElementById('tab-users').style.display = (tab === 'users') ? 'block' : 'none';
+      var titles = { posts: 'お知らせ投稿管理', community: '一般会員の投稿・コメント管理', inquiries: 'お問い合わせ受信一覧', users: '一般登録会員一覧' };
       document.getElementById('main-title').textContent = titles[tab];
     }
+    function makeEl(tag, className, text) {
+      var el = document.createElement(tag);
+      if (className) el.className = className;
+      if (text !== undefined) el.textContent = text;
+      return el;
+    }
 
-    // 1. 運営お知らせ一覧の取得
     async function fetchPosts() {
-      const res = await fetch('/api/posts');
-      const posts = await res.json();
+      var res = await fetch('/api/posts');
+      var posts = await res.json();
       document.getElementById('post-badge').textContent = posts.length;
-      const tbody = document.getElementById('posts-table-body');
+      var tbody = document.getElementById('posts-table-body');
       tbody.innerHTML = '';
-      posts.forEach(post => {
-        const dateStr = new Date(post.created_at).toLocaleString('ja-JP');
-        const tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td>#' + post.id + '</td>' +
-          '<td><span class="badge">' + escapeHtml(post.category) + '</span></td>' +
-          '<td>' + escapeHtml(post.title) + '</td>' +
-          '<td>' + dateStr + '</td>' +
-          '<td><button class="btn-delete" onclick="deletePost(' + post.id + ')">削除</button></td>';
+      posts.forEach(function(post) {
+        var tr = makeEl('tr');
+        tr.appendChild(makeEl('td', '', '#' + post.id));
+        var tdCat = makeEl('td');
+        tdCat.appendChild(makeEl('span', 'badge', post.category));
+        tr.appendChild(tdCat);
+        tr.appendChild(makeEl('td', '', post.title));
+        tr.appendChild(makeEl('td', '', new Date(post.created_at).toLocaleString('ja-JP')));
+        var tdOp = makeEl('td');
+        var btn = makeEl('button', 'btn-delete', '削除');
+        btn.onclick = function() { deletePost(post.id); };
+        tdOp.appendChild(btn);
+        tr.appendChild(tdOp);
         tbody.appendChild(tr);
       });
     }
 
-    // 2. 一般会員の投稿・コメント一覧の取得
     async function fetchUserPosts() {
-      const res = await fetch('/api/user-posts');
-      const posts = await res.json();
+      var res = await fetch('/api/user-posts');
+      var posts = await res.json();
       document.getElementById('user-post-badge').textContent = posts.length;
-      const listEl = document.getElementById('user-posts-list');
-
+      var listEl = document.getElementById('user-posts-list');
+      listEl.innerHTML = '';
       if (!posts || posts.length === 0) {
-        listEl.innerHTML = '<p style="color:#64748b;">現在、会員による投稿はありません。</p>';
+        listEl.appendChild(makeEl('p', '', '現在、会員による投稿はありません。'));
         return;
       }
+      posts.forEach(function(p) {
+        var card = makeEl('div', 'item-card');
+        var header = makeEl('div', 'item-header');
+        var left = makeEl('div');
+        var badge = makeEl('span', 'badge', '投稿者: ' + p.author_name + ' (ID:' + p.user_id + ')');
+        badge.style.background = '#ede9fe';
+        badge.style.color = '#6d28d9';
+        left.appendChild(badge);
+        var title = makeEl('strong', '', ' ' + p.title);
+        left.appendChild(title);
+        header.appendChild(left);
 
-      listEl.innerHTML = '';
-      posts.forEach(p => {
-        const dateStr = new Date(p.created_at).toLocaleString('ja-JP');
-        let commentsHtml = '';
+        var right = makeEl('div');
+        right.appendChild(makeEl('span', '', '♥ ' + p.like_count + ' ｜ ' + new Date(p.created_at).toLocaleString('ja-JP') + ' '));
+        var delBtn = makeEl('button', 'btn-delete', '投稿を削除');
+        delBtn.onclick = function() { deleteUserPost(p.id); };
+        right.appendChild(delBtn);
+        header.appendChild(right);
+
+        card.appendChild(header);
+        card.appendChild(makeEl('div', 'item-body', p.content));
+
         if (p.comments && p.comments.length > 0) {
-          commentsHtml = '<div class="comment-admin-box"><strong>コメント一覧：</strong>';
-          p.comments.forEach(c => {
-            commentsHtml +=
-              '<div class="comment-admin-row">' +
-                '<span>↳ <strong>' + escapeHtml(c.author_name) + '</strong>：' + escapeHtml(c.comment) + '</span>' +
-                '<button class="btn-delete" style="padding:2px 8px;" onclick="deleteUserComment(' + c.id + ')">コメント削除</button>' +
-              '</div>';
+          var cBox = makeEl('div', 'comment-admin-box');
+          cBox.appendChild(makeEl('strong', '', 'コメント一覧：'));
+          p.comments.forEach(function(c) {
+            var row = makeEl('div', 'comment-admin-row');
+            row.appendChild(makeEl('span', '', '↳ ' + c.author_name + '：' + c.comment));
+            var cDel = makeEl('button', 'btn-delete', '削除');
+            cDel.style.padding = '2px 8px';
+            cDel.onclick = function() { deleteUserComment(c.id); };
+            row.appendChild(cDel);
+            cBox.appendChild(row);
           });
-          commentsHtml += '</div>';
+          card.appendChild(cBox);
         }
-
-        const div = document.createElement('div');
-        div.className = 'item-card';
-        div.innerHTML =
-          '<div class="item-header">' +
-            '<div>' +
-              '<span class="badge" style="background:#ede9fe; color:#6d28d9;">投稿者: ' + escapeHtml(p.author_name) + ' (ID:' + p.user_id + ')</span>' +
-              '<strong style="margin-left:8px; font-size:16px;">' + escapeHtml(p.title) + '</strong>' +
-            '</div>' +
-            '<div style="display:flex; align-items:center; gap:10px;">' +
-              '<span class="item-meta">♥ ' + p.like_count + ' ｜ ' + dateStr + '</span>' +
-              '<button class="btn-delete" onclick="deleteUserPost(' + p.id + ')">投稿を削除</button>' +
-            '</div>' +
-          '</div>' +
-          '<div class="item-body">' + escapeHtml(p.content) + '</div>' +
-          commentsHtml;
-        listEl.appendChild(div);
+        listEl.appendChild(card);
       });
     }
 
-    // 3. お問い合わせ一覧の取得
     async function fetchInquiries() {
-      const res = await fetch('/api/inquiries');
+      var res = await fetch('/api/inquiries');
       if (res.status === 401) return;
-      const inquiries = await res.json();
+      var inquiries = await res.json();
       document.getElementById('inquiry-badge').textContent = inquiries.length;
-      const listEl = document.getElementById('inquiries-list');
+      var listEl = document.getElementById('inquiries-list');
+      listEl.innerHTML = '';
       if (inquiries.length === 0) {
-        listEl.innerHTML = '<p style="color:#64748b;">現在受信しているお問い合わせはありません。</p>';
+        listEl.appendChild(makeEl('p', '', '現在受信しているお問い合わせはありません。'));
         return;
       }
-      listEl.innerHTML = '';
-      inquiries.forEach(iq => {
-        const dateStr = new Date(iq.created_at).toLocaleString('ja-JP');
-        const div = document.createElement('div');
-        div.className = 'item-card';
-        div.innerHTML =
-          '<div class="item-header">' +
-            '<div>' +
-              '<span class="badge" style="background:#fef3c7; color:#b45309;">' + escapeHtml(iq.subject) + '</span>' +
-              '<strong style="margin-left:8px;">' + escapeHtml(iq.name) + '</strong>' +
-              '<span class="item-meta">（<a href="mailto:' + escapeHtml(iq.email) + '">' + escapeHtml(iq.email) + '</a>）</span>' +
-            '</div>' +
-            '<div style="display:flex; align-items:center; gap:10px;">' +
-              '<span class="item-meta">' + dateStr + '</span>' +
-              '<button class="btn-delete" onclick="deleteInquiry(' + iq.id + ')">削除</button>' +
-            '</div>' +
-          '</div>' +
-          '<div class="item-body">' + escapeHtml(iq.message) + '</div>';
-        listEl.appendChild(div);
+      inquiries.forEach(function(iq) {
+        var card = makeEl('div', 'item-card');
+        var header = makeEl('div', 'item-header');
+        var left = makeEl('div');
+        var badge = makeEl('span', 'badge', iq.subject);
+        badge.style.background = '#fef3c7';
+        badge.style.color = '#b45309';
+        left.appendChild(badge);
+        left.appendChild(makeEl('strong', '', ' ' + iq.name + ' (' + iq.email + ')'));
+        header.appendChild(left);
+
+        var right = makeEl('div');
+        right.appendChild(makeEl('span', '', new Date(iq.created_at).toLocaleString('ja-JP') + ' '));
+        var delBtn = makeEl('button', 'btn-delete', '削除');
+        delBtn.onclick = function() { deleteInquiry(iq.id); };
+        right.appendChild(delBtn);
+        header.appendChild(right);
+
+        card.appendChild(header);
+        card.appendChild(makeEl('div', 'item-body', iq.message));
+        listEl.appendChild(card);
       });
     }
 
-    // 4. 登録会員一覧の取得
     async function fetchUsers() {
-      const res = await fetch('/api/users');
+      var res = await fetch('/api/users');
       if (res.status === 401) return;
-      const users = await res.json();
+      var users = await res.json();
       document.getElementById('user-badge').textContent = users.length;
-      const tbody = document.getElementById('users-table-body');
+      var tbody = document.getElementById('users-table-body');
       tbody.innerHTML = '';
-      users.forEach(u => {
-        const dateStr = new Date(u.created_at).toLocaleString('ja-JP');
-        const tr = document.createElement('tr');
-        tr.innerHTML =
-          '<td>#' + u.id + '</td>' +
-          '<td>' + escapeHtml(u.name) + '</td>' +
-          '<td>' + escapeHtml(u.email) + '</td>' +
-          '<td>' + dateStr + '</td>' +
-          '<td><button class="btn-delete" onclick="deleteUser(' + u.id + ')">削除</button></td>';
+      users.forEach(function(u) {
+        var tr = makeEl('tr');
+        tr.appendChild(makeEl('td', '', '#' + u.id));
+        tr.appendChild(makeEl('td', '', u.name));
+        tr.appendChild(makeEl('td', '', u.email));
+        tr.appendChild(makeEl('td', '', new Date(u.created_at).toLocaleString('ja-JP')));
+        var tdOp = makeEl('td');
+        var btn = makeEl('button', 'btn-delete', '削除');
+        btn.onclick = function() { deleteUser(u.id); };
+        tdOp.appendChild(btn);
+        tr.appendChild(tdOp);
         tbody.appendChild(tr);
       });
     }
 
-    document.getElementById('create-form').addEventListener('submit', async (e) => {
+    document.getElementById('create-form').addEventListener('submit', async function(e) {
       e.preventDefault();
-      const titleInput = document.getElementById('post-title');
-      const categoryInput = document.getElementById('post-category');
-      const contentInput = document.getElementById('post-content');
+      var titleInput = document.getElementById('post-title');
+      var categoryInput = document.getElementById('post-category');
+      var contentInput = document.getElementById('post-content');
       await fetch('/api/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -312,37 +289,29 @@
     });
 
     async function deletePost(id) {
-      if (!confirm('このお知らせを削除しますか？')) return;
+      if (!confirm('削除しますか？')) return;
       await fetch('/api/posts/' + id, { method: 'DELETE' });
       fetchPosts();
     }
-
     async function deleteUserPost(id) {
-      if (!confirm('管理者権限でこの会員の投稿を削除しますか？（コメントも同時に削除されます）')) return;
+      if (!confirm('この会員投稿を削除しますか？')) return;
       await fetch('/api/user-posts/' + id, { method: 'DELETE' });
       fetchUserPosts();
     }
-
     async function deleteUserComment(id) {
-      if (!confirm('管理者権限でこのコメントを削除しますか？')) return;
+      if (!confirm('このコメントを削除しますか？')) return;
       await fetch('/api/comments/' + id, { method: 'DELETE' });
       fetchUserPosts();
     }
-
     async function deleteInquiry(id) {
       if (!confirm('このお問い合わせを削除しますか？')) return;
       await fetch('/api/inquiries/' + id, { method: 'DELETE' });
       fetchInquiries();
     }
-
     async function deleteUser(id) {
-      if (!confirm('この会員アカウントを削除しますか？')) return;
+      if (!confirm('この会員を削除しますか？')) return;
       await fetch('/api/users/' + id, { method: 'DELETE' });
       fetchUsers();
-    }
-
-    function escapeHtml(str) {
-      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     }
 
     fetchPosts();
