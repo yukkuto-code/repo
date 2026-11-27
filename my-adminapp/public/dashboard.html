@@ -43,16 +43,19 @@
     .btn-delete { padding: 6px 12px; background: #fee2e2; color: #b91c1c; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; white-space: nowrap; }
     .btn-delete:hover { background: #fecaca; }
 
-    .inquiry-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #f8fafc; }
-    .inquiry-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 10px; flex-wrap: wrap; }
-    .inquiry-meta { font-size: 13px; color: #475569; }
-    .inquiry-body { background: #fff; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 14px; white-space: pre-wrap; margin-top: 8px; }
+    /* カード型リスト（お問い合わせ・会員投稿監視用） */
+    .item-card { border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin-bottom: 16px; background: #f8fafc; }
+    .item-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; gap: 10px; flex-wrap: wrap; }
+    .item-meta { font-size: 13px; color: #475569; }
+    .item-body { background: #fff; padding: 12px; border-radius: 6px; border: 1px solid #e2e8f0; font-size: 14px; white-space: pre-wrap; margin-top: 8px; }
+    .comment-admin-box { margin-top: 10px; padding-left: 12px; border-left: 3px solid #cbd5e1; font-size: 13px; }
+    .comment-admin-row { display: flex; justify-content: space-between; align-items: center; padding: 4px 0; color: #334155; }
 
     @media (max-width: 768px) {
       body { flex-direction: column; }
       .sidebar { width: 100%; }
-      .nav-menu { display: flex; padding: 0; }
-      .nav-item { flex: 1; justify-content: center; gap: 6px; border-left: none !important; font-size: 13px; padding: 12px 8px; }
+      .nav-menu { display: flex; flex-wrap: wrap; padding: 0; }
+      .nav-item { flex: 1 1 50%; justify-content: center; gap: 6px; border-left: none !important; font-size: 13px; padding: 12px 8px; }
     }
   </style>
 </head>
@@ -62,8 +65,12 @@
     <div class="sidebar-header">Admin Console</div>
     <ul class="nav-menu">
       <li class="nav-item active" onclick="switchTab('posts', this)">
-        <span>投稿管理</span>
+        <span>お知らせ投稿</span>
         <span class="count-pill" id="post-badge">0</span>
+      </li>
+      <li class="nav-item" onclick="switchTab('community', this)">
+        <span>会員投稿管理</span>
+        <span class="count-pill" id="user-post-badge" style="background:#8b5cf6;">0</span>
       </li>
       <li class="nav-item" onclick="switchTab('inquiries', this)">
         <span>お問い合わせ</span>
@@ -83,18 +90,18 @@
 
   <main class="main-content">
     <div class="header-bar">
-      <h1 class="page-title" id="main-title">投稿管理ダッシュボード</h1>
+      <h1 class="page-title" id="main-title">お知らせ投稿管理</h1>
       <div class="link-group">
         <a href="/" target="_blank" class="btn-link">ホームページ ↗</a>
         <a href="/news" target="_blank" class="btn-link" style="background:#10b981;">お知らせ一覧 ↗</a>
-        <a href="/login" target="_blank" class="btn-link" style="background:#2563eb;">会員ログイン ↗</a>
+        <a href="/community" target="_blank" class="btn-link" style="background:#8b5cf6;">会員投稿ページ ↗</a>
       </div>
     </div>
 
-    <!-- タブ1：投稿管理 -->
+    <!-- タブ1：運営のお知らせ投稿管理 -->
     <div id="tab-posts">
       <div class="panel">
-        <h2>新規投稿の作成</h2>
+        <h2>新規お知らせの作成</h2>
         <form class="add-form" id="create-form">
           <div class="form-row">
             <select id="post-category">
@@ -110,7 +117,7 @@
       </div>
 
       <div class="panel">
-        <h2>投稿一覧</h2>
+        <h2>公開中のお知らせ一覧</h2>
         <table>
           <thead>
             <tr><th>ID</th><th>カテゴリ</th><th>タイトル</th><th>投稿日時</th><th>操作</th></tr>
@@ -120,7 +127,15 @@
       </div>
     </div>
 
-    <!-- タブ2：お問い合わせ -->
+    <!-- タブ2：一般会員の投稿監視・削除 -->
+    <div id="tab-community" style="display: none;">
+      <div class="panel">
+        <h2>一般会員の投稿・コメント一覧（監視・削除）</h2>
+        <div id="user-posts-list">読み込み中...</div>
+      </div>
+    </div>
+
+    <!-- タブ3：お問い合わせ -->
     <div id="tab-inquiries" style="display: none;">
       <div class="panel">
         <h2>受信したお問い合わせ一覧</h2>
@@ -128,7 +143,7 @@
       </div>
     </div>
 
-    <!-- タブ3：登録会員一覧 -->
+    <!-- タブ4：登録会員一覧 -->
     <div id="tab-users" style="display: none;">
       <div class="panel">
         <h2>一般登録会員一覧</h2>
@@ -147,12 +162,20 @@
       document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
       el.classList.add('active');
       document.getElementById('tab-posts').style.display = tab === 'posts' ? 'block' : 'none';
+      document.getElementById('tab-community').style.display = tab === 'community' ? 'block' : 'none';
       document.getElementById('tab-inquiries').style.display = tab === 'inquiries' ? 'block' : 'none';
       document.getElementById('tab-users').style.display = tab === 'users' ? 'block' : 'none';
-      const titles = { posts: '投稿管理ダッシュボード', inquiries: 'お問い合わせ受信一覧', users: '一般登録会員一覧' };
+
+      const titles = {
+        posts: 'お知らせ投稿管理',
+        community: '一般会員の投稿・コメント管理',
+        inquiries: 'お問い合わせ受信一覧',
+        users: '一般登録会員一覧'
+      };
       document.getElementById('main-title').textContent = titles[tab];
     }
 
+    // 1. 運営お知らせ一覧の取得
     async function fetchPosts() {
       const res = await fetch('/api/posts');
       const posts = await res.json();
@@ -162,17 +185,64 @@
       posts.forEach(post => {
         const dateStr = new Date(post.created_at).toLocaleString('ja-JP');
         const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>#${post.id}</td>
-          <td><span class="badge">${escapeHtml(post.category)}</span></td>
-          <td>${escapeHtml(post.title)}</td>
-          <td>${dateStr}</td>
-          <td><button class="btn-delete" onclick="deletePost(${post.id})">削除</button></td>
-        `;
+        tr.innerHTML =
+          '<td>#' + post.id + '</td>' +
+          '<td><span class="badge">' + escapeHtml(post.category) + '</span></td>' +
+          '<td>' + escapeHtml(post.title) + '</td>' +
+          '<td>' + dateStr + '</td>' +
+          '<td><button class="btn-delete" onclick="deletePost(' + post.id + ')">削除</button></td>';
         tbody.appendChild(tr);
       });
     }
 
+    // 2. 一般会員の投稿・コメント一覧の取得
+    async function fetchUserPosts() {
+      const res = await fetch('/api/user-posts');
+      const posts = await res.json();
+      document.getElementById('user-post-badge').textContent = posts.length;
+      const listEl = document.getElementById('user-posts-list');
+
+      if (!posts || posts.length === 0) {
+        listEl.innerHTML = '<p style="color:#64748b;">現在、会員による投稿はありません。</p>';
+        return;
+      }
+
+      listEl.innerHTML = '';
+      posts.forEach(p => {
+        const dateStr = new Date(p.created_at).toLocaleString('ja-JP');
+        let commentsHtml = '';
+        if (p.comments && p.comments.length > 0) {
+          commentsHtml = '<div class="comment-admin-box"><strong>コメント一覧：</strong>';
+          p.comments.forEach(c => {
+            commentsHtml +=
+              '<div class="comment-admin-row">' +
+                '<span>↳ <strong>' + escapeHtml(c.author_name) + '</strong>：' + escapeHtml(c.comment) + '</span>' +
+                '<button class="btn-delete" style="padding:2px 8px;" onclick="deleteUserComment(' + c.id + ')">コメント削除</button>' +
+              '</div>';
+          });
+          commentsHtml += '</div>';
+        }
+
+        const div = document.createElement('div');
+        div.className = 'item-card';
+        div.innerHTML =
+          '<div class="item-header">' +
+            '<div>' +
+              '<span class="badge" style="background:#ede9fe; color:#6d28d9;">投稿者: ' + escapeHtml(p.author_name) + ' (ID:' + p.user_id + ')</span>' +
+              '<strong style="margin-left:8px; font-size:16px;">' + escapeHtml(p.title) + '</strong>' +
+            '</div>' +
+            '<div style="display:flex; align-items:center; gap:10px;">' +
+              '<span class="item-meta">♥ ' + p.like_count + ' ｜ ' + dateStr + '</span>' +
+              '<button class="btn-delete" onclick="deleteUserPost(' + p.id + ')">投稿を削除</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="item-body">' + escapeHtml(p.content) + '</div>' +
+          commentsHtml;
+        listEl.appendChild(div);
+      });
+    }
+
+    // 3. お問い合わせ一覧の取得
     async function fetchInquiries() {
       const res = await fetch('/api/inquiries');
       if (res.status === 401) return;
@@ -187,25 +257,25 @@
       inquiries.forEach(iq => {
         const dateStr = new Date(iq.created_at).toLocaleString('ja-JP');
         const div = document.createElement('div');
-        div.className = 'inquiry-card';
-        div.innerHTML = `
-          <div class="inquiry-header">
-            <div>
-              <span class="badge" style="background:#fef3c7; color:#b45309;">${escapeHtml(iq.subject)}</span>
-              <strong style="margin-left:8px;">${escapeHtml(iq.name)}</strong>
-              <span class="inquiry-meta">（<a href="mailto:${escapeHtml(iq.email)}">${escapeHtml(iq.email)}</a>）</span>
-            </div>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <span class="inquiry-meta">${dateStr}</span>
-              <button class="btn-delete" onclick="deleteInquiry(${iq.id})">削除</button>
-            </div>
-          </div>
-          <div class="inquiry-body">${escapeHtml(iq.message)}</div>
-        `;
+        div.className = 'item-card';
+        div.innerHTML =
+          '<div class="item-header">' +
+            '<div>' +
+              '<span class="badge" style="background:#fef3c7; color:#b45309;">' + escapeHtml(iq.subject) + '</span>' +
+              '<strong style="margin-left:8px;">' + escapeHtml(iq.name) + '</strong>' +
+              '<span class="item-meta">（<a href="mailto:' + escapeHtml(iq.email) + '">' + escapeHtml(iq.email) + '</a>）</span>' +
+            '</div>' +
+            '<div style="display:flex; align-items:center; gap:10px;">' +
+              '<span class="item-meta">' + dateStr + '</span>' +
+              '<button class="btn-delete" onclick="deleteInquiry(' + iq.id + ')">削除</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="item-body">' + escapeHtml(iq.message) + '</div>';
         listEl.appendChild(div);
       });
     }
 
+    // 4. 登録会員一覧の取得
     async function fetchUsers() {
       const res = await fetch('/api/users');
       if (res.status === 401) return;
@@ -216,13 +286,12 @@
       users.forEach(u => {
         const dateStr = new Date(u.created_at).toLocaleString('ja-JP');
         const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>#${u.id}</td>
-          <td>${escapeHtml(u.name)}</td>
-          <td>${escapeHtml(u.email)}</td>
-          <td>${dateStr}</td>
-          <td><button class="btn-delete" onclick="deleteUser(${u.id})">削除</button></td>
-        `;
+        tr.innerHTML =
+          '<td>#' + u.id + '</td>' +
+          '<td>' + escapeHtml(u.name) + '</td>' +
+          '<td>' + escapeHtml(u.email) + '</td>' +
+          '<td>' + dateStr + '</td>' +
+          '<td><button class="btn-delete" onclick="deleteUser(' + u.id + ')">削除</button></td>';
         tbody.appendChild(tr);
       });
     }
@@ -243,20 +312,32 @@
     });
 
     async function deletePost(id) {
-      if (!confirm('この投稿を削除しますか？')) return;
-      await fetch(`/api/posts/${id}`, { method: 'DELETE' });
+      if (!confirm('このお知らせを削除しますか？')) return;
+      await fetch('/api/posts/' + id, { method: 'DELETE' });
       fetchPosts();
+    }
+
+    async function deleteUserPost(id) {
+      if (!confirm('管理者権限でこの会員の投稿を削除しますか？（コメントも同時に削除されます）')) return;
+      await fetch('/api/user-posts/' + id, { method: 'DELETE' });
+      fetchUserPosts();
+    }
+
+    async function deleteUserComment(id) {
+      if (!confirm('管理者権限でこのコメントを削除しますか？')) return;
+      await fetch('/api/comments/' + id, { method: 'DELETE' });
+      fetchUserPosts();
     }
 
     async function deleteInquiry(id) {
       if (!confirm('このお問い合わせを削除しますか？')) return;
-      await fetch(`/api/inquiries/${id}`, { method: 'DELETE' });
+      await fetch('/api/inquiries/' + id, { method: 'DELETE' });
       fetchInquiries();
     }
 
     async function deleteUser(id) {
       if (!confirm('この会員アカウントを削除しますか？')) return;
-      await fetch(`/api/users/${id}`, { method: 'DELETE' });
+      await fetch('/api/users/' + id, { method: 'DELETE' });
       fetchUsers();
     }
 
@@ -265,6 +346,7 @@
     }
 
     fetchPosts();
+    fetchUserPosts();
     fetchInquiries();
     fetchUsers();
   </script>
